@@ -214,7 +214,12 @@ const fmon=d=>new Date(d).toLocaleDateString("en-US",{month:"long",timeZone:"Ame
 const cv=$("screen"),g=mk(cv.getContext("2d"));let ch=0,t=0,osd=90,mode="closed";
 function frame(){t++;if(mode==="closed"){CHANNELS[ch].draw(g,t);if(osd>0){osd--;g.box(118,6,36,11,"R","R");g.txt("CH "+String(ch+1).padStart(2,"0"),121,9,"L")}}requestAnimationFrame(frame)}
 function setCh(n){ch=(n+CHANNELS.length)%CHANNELS.length;osd=90;$("chName").textContent="CH "+(ch+1)+" · "+CHANNELS[ch].n;$("knobCh").style.transform="rotate("+(ch*36)+"deg)"}
-$("knobCh").onclick=$("chNext").onclick=()=>{if(mode==="closed")setCh(ch+1)};$("chPrev").onclick=()=>setCh(ch-1);
+const TEST=/[?&]test=1/.test(location.search),GKEYS=Object.keys(GAMES);let gi=0;
+function testGame(n){gi=(n+GKEYS.length)%GKEYS.length;const k=GKEYS[gi],crt=$("crt");mode="test";crt.classList.remove("ch");crt.innerHTML="";const f=document.createElement("iframe");
+ f.src="games/"+k+".html?embed=1&v=5";f.title=GAMES[k][0];crt.appendChild(f);$("chName").textContent="GAME "+(gi+1)+" · "+GAMES[k][0].toUpperCase();$("knobCh").style.transform="rotate("+(gi*45)+"deg)";
+ $("infoOpen").hidden=false;$("infoClosed").hidden=true;$("gName").textContent=GAMES[k][0];$("gBlurb").textContent=GAMES[k][1];$("gCtl").textContent=GAMES[k][2];$("gDates").textContent="Test mode";$("gPrize").textContent="Practice only, scores aren't saved";
+ $("stamp").textContent="TEST MODE · ALL GAMES";$("intro").textContent="Testing every game. Flip with the arrows below the TV."}
+$("knobCh").onclick=$("chNext").onclick=()=>{if(TEST)testGame(gi+1);else if(mode==="closed")setCh(ch+1)};$("chPrev").onclick=()=>{if(TEST)testGame(gi-1);else setCh(ch-1)};
 // ---- rules ----
 const modal=$("modal");function showRules(){modal.hidden=false;$("rulesOk").focus()}
 function hideRules(){modal.hidden=true;try{sessionStorage.setItem("arcadeRules:"+curPeriod,"1")}catch(e){}const f=$("crt").querySelector("iframe");if(f)f.focus()}
@@ -236,7 +241,7 @@ function closeGame(st){mode="closed";if(curGame!==null||!$("crt").querySelector(
  return add}
 async function refresh(){let st;try{st=await rpc("arcade_state")}catch(e){if(mode!=="open")closeGame(null);return}
  const all=Array.isArray(st)?st:[st];st=all.find(x=>x.status==="open")||all.find(x=>x.status==="next")||all[0]||null;if(st&&st.status==="open")curPeriod=st.game+st.starts_at;let rows=[];try{rows=await rpc("get_board",{p_game:null,p_limit:10})}catch(e){}
-  const open=st&&st.status==="open";let add=null;if(open)openGame(st);else add=closeGame(st);
+  const open=st&&st.status==="open";let add=null;if(!TEST){if(open)openGame(st);else add=closeGame(st)}
  const sec=$("boardSec");if(!rows.length){sec.hidden=!open;$("rows").innerHTML='<tr><td colspan="3">No scores yet. Be the first!</td></tr>'}else sec.hidden=false;
  const r0=rows[0]||{},G=GAMES[r0.game||(st&&st.game)]||["",""];
  if(open){$("boardLabel").textContent="Live leaderboard · "+G[0];$("boardTitle").textContent="Who's ahead";$("boardClose").textContent="Board closes "+fmt(st.ends_at)}
@@ -250,5 +255,5 @@ addEventListener("message",e=>{const d=e.data||{};if(e.source===window.parent)re
 // ---- tell the shop page how tall to make the frame ----
 function sendH(){if(window.parent!==window)window.parent.postMessage({type:"overdue-arcade-height",h:Math.ceil(document.querySelector(".wrap").getBoundingClientRect().bottom+window.scrollY+48)},"*")}
 new ResizeObserver(sendH).observe(document.body);
-setCh(0);frame();refresh();setInterval(refresh,30000);
+setCh(0);frame();if(TEST)testGame(0);refresh();setInterval(refresh,30000);
 </script></body></html>
