@@ -196,6 +196,16 @@ const CHANNELS=[
    const br=(t>>5)%2;ell(56,120-br,9,4+br,"R");ell(64,118,4,4,"R");r(61,113,1,2,"R");r(66,113,1,2,"R");r(46,121,4,2,"R");
    r(92,108,22,4,"R");r(94,112,2,14,"R");r(110,112,2,14,"R");box(98,100,10,8,"L","R");r(108,102,2,3,"R");for(let k=0;k<3;k++)r(100+k*3+Math.round(Math.sin(t/10+k)),94-((t>>3)+k*2)%7,1,3,"B")}}];
 
+function ctr2(txt,s,y){txt(s,80-Math.floor((s.length*4-1)/2),y,"L")}
+function titleArt(g,i,x,y){const {r,box,txt,put,bk}=g;
+  if(i===0){bk("B",x+6,y+2,30);bk("M",x+3,y+9,36);bk("L",x+5,y+16,38);r(x+1,y+23,46,2,"R")}
+  if(i===1){put(SP.cards.P.slice(0,26),x+4,y)}
+  if(i===2){for(let q=0;q<24;q++)r(x+q,y+14+((q>>2)%2),1,2,"R");put(SP.sweater,x+24,y+10);put(SP.ball.map(s=>s.replace(/k/g,"B")),x+38,y+9)}
+  if(i===3){["K","P","Y","T","P"].forEach((k,q)=>{const cx=x+1+q*9;box(cx-1,y,11,11,"L","R");SP.chs[k].forEach((row,j)=>[...row].forEach((ch,c)=>{if(ch==="R")r(cx+c,y+1+j,1,1,"R")}))})}
+  if(i===4){r(x,y+22,30,4,"R");put(SP.cat[0],x+6,y+9);put(SP.star,x+38,y+8)}
+  if(i===5){put(SP.hol,x+30,y);r(x+24,y+11,24,9,"R");put(SP.page,x+6,y+8)}
+  if(i===6){[["B","02"],["M","39"],["L","64"],["B","74"]].forEach(([k,n],j)=>{const bx=x+j*12;box(bx,y,11,24,k,"R");box(bx+1,y+5,9,7,"L","R");txt(n,bx+2,y+6,"R")})}
+  if(i===7){put([...SP.ghost.down,"R.RR.RR."],x+6,y+12);put(SP.stack,x+20,y+12);put(SP.abe,x+34,y+12)}}
 const GAMES={"stacks-on-stacks":["Stacks on Stacks","Stack returned books on the cart as high as they'll go without toppling the pile.","Space or tap to drop"],
 "date-due":["Date Due","Stamp each card right in the box as it slides past the desk. Perfect stamps score big.","Space or tap to stamp"],
 "loose-ends":["Loose Ends","Steer an unraveling sweater through the reading room and gather every ball of yarn without tangling.","Arrow keys or swipe"],
