@@ -311,7 +311,7 @@ refreshBoard();setInterval(refreshBoard,30000);
 (function(){var f=document.getElementById("nameForm"),s=document.querySelector(".side");if(!f||!s)return;
  new MutationObserver(function(){s.classList.toggle("asking",!f.hidden);if(!f.hidden){var i=document.getElementById("nameInput");if(i)i.focus()}else{var c=document.getElementById("cv")||document.querySelector("canvas");if(c)c.focus()}}).observe(f,{attributes:true,attributeFilter:["hidden"]});})();
 
-(function(){var c=document.querySelector("canvas");if(c)["touchstart","touchmove"].forEach(function(t){c.addEventListener(t,function(e){e.preventDefault()},{passive:false})})})();
+(function(){var c=document.querySelector("canvas");if(c)["touchstart","touchmove"].forEach(function(t){c.addEventListener(t,function(e){e.preventDefault()},{passive:false})});if(document.documentElement.classList.contains("embed"))document.addEventListener("touchmove",function(e){if(!e.target.closest||!e.target.closest(".side"))e.preventDefault()},{passive:false})})();
 </script>
 
 </body>
