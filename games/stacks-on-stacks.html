@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>[hidden]{display:none!important}html{color-scheme:light}body{margin:0;font:14px system-ui,sans-serif}</style>
+</head>
+<body>
+<title>Stacks on Stacks</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Special+Elite&display=swap">
+<style>
+/* Layout: a handheld console centered on butter, high-score card beside it */
+:root{--slip:#fffaeb;--butter:#f6ebc8;--blue:#b9d4ea;--red:#a9473f;--ink:#1a1a1a;
+  --label:"Oswald","Arial Narrow",sans-serif;--typed:"Special Elite","Courier New",monospace}
+html,body{height:100%}
+body{background:var(--butter);color:var(--ink);font-family:var(--typed);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px}
+.wrap{max-width:900px;margin:0 auto;display:flex;flex-wrap:wrap;gap:24px;justify-content:center;align-items:flex-start}
+.gb{background:var(--red);padding:18px 18px 14px;border-radius:8px 8px 40px 8px;max-width:100%}
+canvas{display:block;width:480px;height:auto;image-rendering:pixelated;border:4px solid var(--butter);cursor:pointer;touch-action:manipulation}
+.brand{font-family:var(--label);letter-spacing:.22em;font-size:11px;color:var(--butter);margin-top:8px;display:flex;justify-content:space-between}
+.side{background:var(--slip);border:1px solid var(--blue);padding:18px;width:260px;max-width:100%;display:flex;flex-direction:column;gap:12px}
+h2{font-family:var(--label);text-transform:uppercase;letter-spacing:.16em;font-size:14px;color:var(--red);margin:0}
+ol{margin:0;padding-left:1.6em;font-size:15px;display:flex;flex-direction:column;gap:2px;font-variant-numeric:tabular-nums}
+ol li span{float:right}
+.empty{color:var(--red);font-size:14px}
+form{display:flex;flex-direction:column;gap:6px}.lab{font-family:var(--label);text-transform:uppercase;letter-spacing:.1em;font-size:11px;color:var(--red)}
+input{font-family:var(--typed);font-size:15px;padding:6px;border:1.5px solid var(--red);background:var(--slip);color:var(--ink);width:100%;min-width:0}
+button{font-family:var(--label);text-transform:uppercase;letter-spacing:.12em;background:var(--red);color:var(--slip);border:0;padding:6px 12px;cursor:pointer}
+button:focus-visible,input:focus-visible,canvas:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.me{margin:0;font-size:13px}.link{background:none;color:var(--red);padding:0 2px;text-decoration:underline;font-family:var(--typed);text-transform:none;letter-spacing:0}
+.help{font-size:13px;line-height:1.5;margin:0}
+.note{font-size:12px;color:var(--red);margin:0}
+</style>
+
+<div class="wrap">
+  <div class="gb">
+    <canvas id="cv" width="160" height="144" tabindex="0" aria-label="Stacks on Stacks game. Press space or click to drop a book."></canvas>
+    <div class="brand"><span>OVERDUE · DOT MATRIX</span><span>PLAYTEST v5</span></div>
+  </div>
+  <aside class="side">
+    <h2>High scores</h2>
+    <p id="meLine" class="me" hidden>Playing as <b id="meName"></b> <button type="button" id="switchBtn" class="link">Not you?</button></p>
+    <ol id="board"></ol>
+    <form id="nameForm" hidden>
+      <label for="nameInput" class="lab">Name (shown on the board)</label>
+      <input id="nameInput" maxlength="12" placeholder="Your name" autocomplete="nickname" required>
+      <label for="emailInput" class="lab">Email (private, so we can send your prize)</label>
+      <input id="emailInput" type="email" placeholder="you@example.com" autocomplete="email" required>
+      <button type="submit">Save score</button>
+    </form>
+    <p class="help">You enter your name once. After that, only a new personal best updates the board. <b>Space, click or tap</b> drops the book. Overhang gets trimmed. Land within a pixel for a PERFECT; a streak of 5 perfects widens the book again.</p>
+    <p class="note">Playtest board: saved in this browser only. The live site will use a shared board.</p>
+  </aside>
+</div>
+
+<script>
+const C={L:"#fffaeb",M:"#f6ebc8",B:"#b9d4ea",R:"#a9473f"};
+const cv=document.getElementById("cv"),c=cv.getContext("2d");c.imageSmoothingEnabled=false;
+const W=160,H=144,BH=7,BASE_Y=126,START_W=64;
+const r=(x,y,w,h,k)=>{c.fillStyle=C[k];c.fillRect(Math.round(x),Math.round(y),w,h)};
+const FONT={A:"010101111101101",B:"110101110101110",C:"011100100100011",D:"110101101101110",E:"111100110100111",F:"111100110100100",G:"011100101101011",H:"101101111101101",I:"111010010010111",J:"001001001101010",K:"101101110101101",L:"100100100100111",M:"101111111101101",N:"110101101101101",O:"010101101101010",P:"110101110100100",Q:"010101101110011",R:"110101110101101",S:"011100010001110",T:"111010010010010",U:"101101101101111",V:"101101101101010",W:"101101111111101",X:"101101010101101",Y:"101101010010010",Z:"111001010100111","0":"111101101101111","1":"010110010010111","2":"110001010100111","3":"110001010001110","4":"101101111001001","5":"111100110001110","6":"011100111101111","7":"111001010010010","8":"111101111101111","9":"111101111001110","!":"010010010000010",">":"100010001010100","-":"000000111000000","/":"001001010100100","#":"101111101111101",".":"000000000000010",":":"000010000010000"};
+const fsc=sz=>sz>=14?3:sz>=10?2:1;
+const tw=(s,sz)=>{const k=fsc(sz);return s.length*4*k-k};
+const txt=(s,x,y,k,sz)=>{const sc=fsc(sz);x=Math.round(x);y=Math.round(y);c.fillStyle=C[k];
+  [...String(s).toUpperCase()].forEach((ch,i)=>{const g=FONT[ch];if(g)for(let p=0;p<15;p++)if(g[p]==="1")c.fillRect(x+i*4*sc+(p%3)*sc,y+((p/3)|0)*sc,sc,sc)})};
+const ctr=(s,y,k,sz)=>txt(s,Math.floor((W-tw(s,sz))/2),y,k,sz);
+function fitScreen(){const avail=Math.min(window.innerWidth-80,520);const s=Math.max(1,Math.floor(avail/160));cv.style.width=(160*s)+"px"}
+window.addEventListener("resize",fitScreen);fitScreen();
+const box=(x,y,w,h,f,l)=>{r(x,y,w,h,l);if(w>2&&h>2)r(x+1,y+1,w-2,h-2,f)};
+const KS=["L","B","M","R"];
+
+// sound
+let ac=null;function beep(f,d,type){try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain();o.type=type||"square";o.frequency.value=f;g.gain.value=.06;g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+d);o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+d)}catch(e){}}
+
+// scores
+let scores=[];try{scores=JSON.parse(localStorage.getItem("sos-scores")||"[]")}catch(e){}
+function renderBoard(){const ol=document.getElementById("board");ol.innerHTML="";
+  if(!scores.length){ol.innerHTML='<li class="empty" style="list-style:none;margin-left:-1.6em">No scores yet. Be first.</li>';return}
+  scores.slice(0,10).forEach(s=>{const li=document.createElement("li");li.textContent=s.n;const sp=document.createElement("span");sp.textContent=s.s;li.appendChild(sp);ol.appendChild(li)})}
+renderBoard();
+const best=()=>scores.length?scores[0].s:0;
+
+let st,stack,mov,cam,camT,score,streak,pops,falls,dir,speed,flash,t=0;
+function reset(){stack=[{x:(W-START_W)/2,w:START_W,k:"L"}];score=0;streak=0;pops=[];falls=[];cam=0;camT=0;speed=.9;newBook();}
+function newBook(){dir=Math.random()<.5?1:-1;const top=stack[stack.length-1];mov={w:top.w,x:dir>0?-top.w:W,k:KS[stack.length%4]}}
+function topY(i){return BASE_Y-(i+1)*BH}
+function drop(){
+  const top=stack[stack.length-1],i=stack.length;
+  const l=Math.max(mov.x,top.x),rr=Math.min(mov.x+mov.w,top.x+top.w),ov=rr-l;
+  if(ov<=0){falls.push({x:mov.x,y:topY(i)+cam-14,w:mov.w,k:mov.k,vy:0});mov=null;beep(110,.4,"sawtooth");end();return}
+  let nb;
+  if(Math.abs(mov.x-top.x)<=1){streak++;nb={x:top.x,w:top.w,k:mov.k};
+    if(streak%5===0)nb.w=Math.min(START_W,nb.w+6),nb.x=Math.max(0,nb.x-3);
+    score+=1+Math.min(streak,5);pops.push({s:streak>1?"PERFECT x"+streak:"PERFECT",y:topY(i)+cam-10,life:50});beep(660+streak*80,.12);flash=6;}
+  else{streak=0;nb={x:l,w:ov,k:mov.k};score+=1;
+    const cutX=mov.x<top.x?mov.x:rr,cutW=mov.w-ov;falls.push({x:cutX,y:topY(i)+cam,w:cutW,k:mov.k,vy:0});beep(330,.08);}
+  stack.push(nb);speed=Math.min(2.6,.9+stack.length*.06);camT=Math.max(0,BH*stack.length-65);newBook();}
+let me=null;try{me=JSON.parse(localStorage.getItem("sos-me")||"null")}catch(e){}
+let newBest=false;
+const myBest=()=>{if(!me)return 0;const x=scores.find(q=>q.e===me.e);return x?x.s:0};
+function save(){scores.sort((a,b)=>b.s-a.s);try{localStorage.setItem("sos-scores",JSON.stringify(scores));localStorage.setItem("sos-me",JSON.stringify(me))}catch(e){}renderBoard();renderMe()}
+function upsert(sc){const x=scores.find(q=>q.e===me.e);if(x){x.n=me.n;if(sc>x.s)x.s=sc}else scores.push({n:me.n,s:sc,e:me.e});save()}
+function renderMe(){const el=document.getElementById("meLine");if(!me){el.hidden=true;return}el.hidden=false;
+  document.getElementById("meName").textContent=me.n+", best "+myBest()}
+function end(){st="over";newBest=false;const f=document.getElementById("nameForm");f.hidden=true;
+  if(score<=0)return;
+  if(me){if(score>myBest()){upsert(score);newBest=true;beep(880,.25)}return}
+  f.hidden=false;setTimeout(()=>document.getElementById("nameInput").focus(),50);}
+document.getElementById("nameForm").addEventListener("submit",e=>{e.preventDefault();
+  const n=(document.getElementById("nameInput").value.trim()||"Anonymous").slice(0,12);
+  const em=document.getElementById("emailInput").value.trim().toLowerCase();
+  me={n,e:em};upsert(score);newBest=true;
+  e.target.hidden=true;document.getElementById("nameInput").value="";document.getElementById("emailInput").value="";cv.focus();});
+document.getElementById("switchBtn").addEventListener("click",()=>{me=null;try{localStorage.removeItem("sos-me")}catch(e){}renderMe();cv.focus()});
+renderMe();
+
+function act(){if(st==="title"){reset();st="play";beep(523,.1);return}
+  if(st==="play"&&mov){drop();return}
+  if(st==="over"&&document.getElementById("nameForm").hidden){reset();st="play";beep(523,.1)}}
+cv.addEventListener("pointerdown",e=>{e.preventDefault();cv.focus();act()});
+window.addEventListener("keydown",e=>{if(document.activeElement.tagName==="INPUT")return;if(e.code==="Space"||e.code==="Enter"){e.preventDefault();act()}});
+
+// drawing
+function bg(){for(let y=12;y<H;y++)for(let x=0;x<W;x++)if((x+y)%2)r(x,y,1,1,"M");else r(x,y,1,1,"L");}
+const bgC=document.createElement("canvas");bgC.width=W;bgC.height=H;
+(()=>{const b=bgC.getContext("2d");for(let y=0;y<H;y++)for(let x=0;x<W;x++){b.fillStyle=(x+y)%2?C.M:C.L;b.fillRect(x,y,1,1)}})();
+const BOOKSPR={
+L:["RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR","RRRLLLLLLLLLLLLLLLLLLLLLLLLLLLLR","RRRRRRRRRRRRRRRRRRRRRRRRRRRRRLLR","RRRLLLLLLLLLLLLLLLLLLLLLLLLLLLLR","RRRBBBBBBBBBBBBBBBBBBBBBBBBBBLLR","RRRLLLLLLLLLLLLLLLLLLLLLLLLLLLLR","RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR"],
+B:["RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR","RRRBBBBBBBBBBBBBBBBBBBBBBBBBBBBR","RRRRRRRRRRRRRRRRRRRRRRRRRRRRRBBR","RRRBBBBBBBBBBBBBBBBBBBBBBBBBBBBR","RRRBBBBBBBBBBBBBBBBBBBBBBBBBBBBR","RRRBBBBBBBBBBBBBBBBBBBBBBBBBBBBR","RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR"],
+M:["RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR","RRRMMMMMMMMMMMMMMMMMMMMMMMMMMMMR","RRRRRRRRRRRRRRRRRRRRRRRRRRRRRMMR","RRRMMMMMMMMMMMMMMMMMMMMMMMMMMMMR","RRRBBBBBBBBBBBBBBBBBBBBBBBBBBMMR","RRRMMMMMMMMMMMMMMMMMMMMMMMMMMMMR","RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR"],
+R:["RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR","RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR","RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR","RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR","RRRMMMMMMMMMMMMMMMMMMMMMMMMMMRRR","RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR","RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR"]};
+// draws the book sprite at any width: keeps the 3-px ends, stretches the middle
+function book(x,y,w,k){w=Math.round(w);x=Math.round(x);if(w<1)return;const sp=BOOKSPR[k],L=3,Rt=3,sw=sp[0].length;
+  sp.forEach((row,j)=>{for(let i=0;i<w;i++){let ch;
+    if(w<L+Rt)ch=row[Math.min(i,sw-1)];else if(i<L)ch=row[i];else if(i>=w-Rt)ch=row[sw-(w-i)];else ch=row[Math.min(L+((i-L)%(sw-L-Rt)),sw-Rt-1)];
+    if(ch!==".")r(x+i,y+j,1,1,ch)}})}
+const CARTSPR=[".RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR.",
+"RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR",
+"RRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMRR",
+"RRMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMRR",
+"RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR",
+"RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR",
+".RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR.",
+"..RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR..",
+...Array(6).fill("........RRR..............................................................................RRR........"),
+".......RRRRR............................................................................RRRRR.......",
+"......RBBBBBR..........................................................................RBBBBBR......",
+"......RBBBBBR..........................................................................RBBBBBR......",
+".......RRRRR............................................................................RRRRR......."];
+function spr(a,x,y){x=Math.round(x);y=Math.round(y);a.forEach((row,j)=>[...row].forEach((ch,i)=>{if(ch!==".")r(x+i,y+j,1,1,ch)}))}
+function cart(y){spr(CARTSPR,30,y)}
+const SKEIN=["..RRRRRR..",".RBRMMRBR.","RBBRMRRBBR","RBBRRMRBBR",".RBRMMRBR.","..RRRRRR.."];
+const DROPMK=["..R..","..R..","RRRRR",".RRR.","..R.."];
+
+function skein(x,y){SKEIN.forEach((row,j)=>[...row].forEach((ch,i)=>{if(ch!==".")r(x+i,y+j,1,1,ch)}))}
+function hud(){r(0,0,W,11,"R");r(0,11,W,1,"M");txt("BOOKS "+String(Math.max(0,stack?stack.length-1:0)).padStart(2,"0"),3,2,"L");const h="HI "+best();txt(h,157-tw(h),2,"L")}
+
+// ---- shared Arcade Marquee title screen ----
+const BOARD_CLOSES="OCT 31";
+const SP={"book": {"L": ["RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR", "RRRLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRLLR", "RRRLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RRRBBBBBBBBBBBBBBBBBBBBBBBBBBLLR", "RRRLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR"], "B": ["RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR", "RRRBBBBBBBBBBBBBBBBBBBBBBBBBBBBR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRBBR", "RRRBBBBBBBBBBBBBBBBBBBBBBBBBBBBR", "RRRBBBBBBBBBBBBBBBBBBBBBBBBBBBBR", "RRRBBBBBBBBBBBBBBBBBBBBBBBBBBBBR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR"], "M": ["RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR", "RRRMMMMMMMMMMMMMMMMMMMMMMMMMMMMR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRMMR", "RRRMMMMMMMMMMMMMMMMMMMMMMMMMMMMR", "RRRBBBBBBBBBBBBBBBBBBBBBBBBBBMMR", "RRRMMMMMMMMMMMMMMMMMMMMMMMMMMMMR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR"], "R": ["RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR", "RRRMMMMMMMMMMMMMMMMMMMMMMMMMMRRR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR"]}, "cart": [".RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR.", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR", "RRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMRR", "RRMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMRR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR", ".RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR.", "..RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR..", "........RRR..............................................................................RRR........", "........RRR..............................................................................RRR........", "........RRR..............................................................................RRR........", "........RRR..............................................................................RRR........", "........RRR..............................................................................RRR........", "........RRR..............................................................................RRR........", ".......RRRRR............................................................................RRRRR.......", "......RBBBBBR..........................................................................RBBBBBR......", "......RBBBBBR..........................................................................RBBBBBR......", ".......RRRRR............................................................................RRRRR......."], "skein": ["..RRRRRR..", ".RBRMMRBR.", "RBBRMRRBBR", "RBBRRMRBBR", ".RBRMMRBR.", "..RRRRRR.."], "cards": {"": ["RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLRRLLLRLLRRRLRRRLLLLLRRLLRLRLRRRLLLLR", "RLLLRLRLRLRLLRLLRLLLLLLLRLRLRLRLRLLLLLLR", "RLLLRLRLRRRLLRLLRRLLLLLLRLRLRLRLRRLLLLLR", "RLLLRLRLRLRLLRLLRLLLLLLLRLRLRLRLRLLLLLLR", "RLLLRRLLRLRLLRLLRRRLLLLLRRLLRRRLRRRLLLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR"], "P": ["RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLRRLLLRLLRRRLRRRLLLLLRRLLRLRLRRRLLLLR", "RLLLRLRLRLRLLRLLRLLLLLLLRLRLRLRLRLLLLLLR", "RLLLRLRLRRRLLRLLRRLLLLLLRLRLRLRLRRLLLLLR", "RLLLRLRLRLRLLRLLRLLLLLLLRLRLRLRLRLLLLLLR", "RLLLRRLLRLRLLRLLRRRLLLLLRRLLRRRLRRRLLLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRLLLLR", "RLLLLRLLLLLLLLLLLLLLLLLLLLLLLLLLLLRLLLLR", "RLLLLRLRRLLLRLLRLRLLLLLLRLLRLRLLLLRLLLLR", "RLLLLRLRLRLRLRLRLRLLLLLRRLLRLRLLLLRLLLLR", "RLLLLRLRLRLRLRLRLRLLLLLLRLLRRRLLLLRLLLLR", "RLLBBRLRLRLRLRLRLRLLLLLLRLLLLRLLLLRBBLLR", "RLLLLRLRLRLLRLLLRLLLLLLRRRLLLRLLLLRLLLLR", "RLLLLRLLLLLLLLLLLLLLLLLLLLLLLLLLLLRLLLLR", "RLLLLRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR"], "O": ["RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLRRLLLRLLRRRLRRRLLLLLRRLLRLRLRRRLLLLR", "RLLLRLRLRLRLLRLLRLLLLLLLRLRLRLRLRLLLLLLR", "RLLLRLRLRRRLLRLLRRLLLLLLRLRLRLRLRRLLLLLR", "RLLLRLRLRLRLLRLLRLLLLLLLRLRLRLRLRLLLLLLR", "RLLLRRLLRLRLLRLLRRRLLLLLRRLLRRRLRRRLLLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRLLR", "RLLLLLLRLLLLLLLLLLLLLLLLLLLLLLLLLLLLRLLR", "RLLLLLLRLRRLLLRLLRLRLLLLLLRLLRLRLLLLRLLR", "RLLLLLLRLRLRLRLRLRLRLLLLLRRLLRLRLLLLRLLR", "RLLLLLLRLRLRLRLRLRLRLLLLLLRLLRRRLLLLRLLR", "RLLBBBBRLRLRLRLRLRLRLLLLLLRLLLLRLLLLRLLR", "RLLLLLLRLRLRLLRLLLRLLLLLLRRRLLLRLLLLRLLR", "RLLLLLLRLLLLLLLLLLLLLLLLLLLLLLLLLLLLRLLR", "RLLLLLLRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR"], "S": ["RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLRRLLLRLLRRRLRRRLLLLLRRLLRLRLRRRLLLLR", "RLLLRLRLRLRLLRLLRLLLLLLLRLRLRLRLRLLLLLLR", "RLLLRLRLRRRLLRLLRRLLLLLLRLRLRLRLRRLLLLLR", "RLLLRLRLRLRLLRLLRLLLLLLLRLRLRLRLRLLLLLLR", "RLLLRRLLRLRLLRLLRRRLLLLLRRLLRRRLRRRLLLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRLLR", "RLLLLRRLRLRRLRBRRLRLRRLRLRRLRLRRLRLLLLLR", "RLLLLLLRRLRLRRBRLRRLRLRRLRLRRLRLRRLRLLLR", "RLLLLLLRLRRLRLRRLRLRRLRLRRLRLRRLRLRRLLLR", "RLLLLLRLRRLRLRRLRLRRLRLRRLRLRRLRLRRLLLLR", "RLLLLLRLRLRRLRBRRLRLRRLRLRRLRLRRLRLRLLLR", "RLLLLLLRRLRLRRBRLRRLRLRRLRLRRLRLRRLRLLLR", "RLLBBBRRBRBRRBRBRRBRBRRBRBRRBRBRRBRBBLLR", "RLLLLLRLRRLRLRRLRLRRLRLRRLRLRRLRLRRLLLLR", "RLLLLLLLRLRRLRBRRLRLRRLRLRRLRLRRLRLRRLLR", "RLLLLRLRLRRLRLRRLRLRRLRLRRLRLRRLRLRLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR"]}, "sweater": ["RR....RR", "RBRRRRBR", "RBBMMBBR", ".RBBBBR.", ".RBBBBR.", ".RBBBBR.", ".RRRRRR.", "........"], "ball": ["..RRRR..", ".RkRkkR.", "RkkRkkRR", "RRkkRkkR", "RkRkkRkR", ".RkkRkR.", "..RRRRR.", ".......R"], "chs": {"K": ["LLLLLLLLL", "LLLLLLLLL", "LLLLLLLLL", "LLLLLLLLL", "LLLLLLLLL", "LLLLLLLLL", "LLLLLLLLL", "LLLLLLLLL", "LLLLLLLLL"], "P": ["LLLLLLLLL", "LLLLLLLLL", "LLLLLLLLL", "LLLRRRLLL", "LLLRRRLLL", "LLLRRRLLL", "LLLLLLLLL", "LLLLLLLLL", "LLLLLLLLL"], "Y": ["LLLLLLLLL", "LLLLLLLLL", "LLLRRRLLL", "LLRLLLRLL", "LLRLLLRLL", "LLRLLLRLL", "LLLRRRLLL", "LLLLLLLLL", "LLLLLLLLL"], "T": ["LLLLLLLLL", "LLLLLLLRL", "LLLLLLRLL", "LLLLLRLLL", "LLLLRLLLL", "LLLRLLLLL", "LLRLLLLLL", "LRLLLLLLL", "LLLLLLLLL"]}, "fab": {"K": ["R...R", "R...R", ".R.R.", ".RRR.", "....."], "P": [".....", ".....", "RRRRR", ".....", "....."], "Y": [".RRR.", "R...R", "R...R", "R...R", ".RRR."], "T": ["....R", "...R.", "..R..", ".R...", "R...."]}, "cat": [["................", ".RR........R..R.", "R..........RRRR.", "R.........RRRRR.", ".R........RRRLRR", "..R.......RRRRRR", "..RRRRRRRRRRRRR.", "..RRRRRRRRRRRR..", "..RRRRRRRRRRR...", "..RRRRRRRRRRR...", ".RR.........RR..", "RR...........RR.", "R.............RR"], ["...........R..R.", "RR.........RRRR.", "R.........RRRRR.", ".R........RRRLRR", "..R.......RRRRRR", "..RRRRRRRRRRRRR.", "..RRRRRRRRRRRR..", "..RRRRRRRRRRR...", "..RRRRRRRRRRR...", "................", "....RR...RR.....", ".....RR.RR......", "......RRR......."], ["................", "R..........R..R.", "R..........RRRR.", ".R........RRRRR.", ".R........RRRLRR", "..R.......RRRRRR", "..RRRRRRRRRRRRR.", "..RRRRRRRRRRRR..", "..RRRRRRRRRRR...", "..RRRRRRRRRRR...", "...RR.....RR....", "..RR.......RR...", "..R.........R..."], ["...........R..R.", "RR.........RRRR.", ".R........RRRRR.", "..R.......RRRLRR", "..R.......RRRRRR", "..RRRRRRRRRRRRR.", "..RRRRRRRRRRRR..", "..RRRRRRRRRRR...", "..RRRRRRRRRRR...", "................", "....R.R.R.R.....", "....R.R.R.R.....", "...RR.RRRR......"]], "star": ["R.R.R", ".RLR.", "RLLLR", ".RLR.", "R.R.R"], "page": ["...RRRRRR...", "..RRRRRRRR..", ".RRRRRRRRRR.", ".RRLLLLLLRR.", ".RRLRLLRLRR.", ".RRMLLLLMRR.", ".RRLLRRLLRR.", "..RRLLLLRR..", "..RBRLLRBR..", ".RBRBBBBRBR.", "RLBRRRRRRBLR", ".RBBBBBBBBR.", "..RRRRRRRR..", "....R..R....", "....R..R....", "...RR..RR..."], "hol": ["....RRRR....", "...RRRRRR...", "..RRRRRRRR..", "..RLLLLLLR..", "..RRRLLRRR..", "..RLRLLRLR..", "..RLLRRLLR..", "...RLLLLR...", "..RMMMMMMR..", ".RMMBBBBMMR.", "RLMMBBBBMMLR", ".RMMBBBBMMR.", ".RRRRRRRRRRR"], "clock": [".......RRRRRRR.......", ".....RRLLLLLLLRR.....", "....RLLLLLRLLLLLR....", "...RLLLLLLRLLLLLLR...", "..RLLLLLLLLLLLLLLLR..", ".RLLLLLLLLRLLLLLLLLR.", ".RLLLLLLLLRLLLLLLLLR.", "RLLLLLLLLLRLLLLLLLLLR", "RLLLLLLLLLRLLLLLLLLLR", "RLLLLLLLLLRLLLLLLLLLR", "RLRRLLLLLLRRRLLLLRRLR", "RLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLLLLLLLR", ".RLLLLLLLLLLLLLLLLLR.", ".RLLLLLLLLLLLLLLLLLR.", "..RLLLLLLLLLLLLLLLR..", "...RLLLLLLRLLLLLLR...", "....RLLLLLRLLLLLR....", ".....RRLLLLLLLRR.....", ".......RRRRRRR.......", "..........R..........", "..........R..........", "..........R..........", "..........R..........", "..........R..........", "..........R..........", "........RRRRR........", "........RMMMR........", "........RMMMR........", "........RMMMR........", "........RRRRR........"], "ghost": {"down": ["..RRRR..", ".RLLLLR.", "RLLLLLLR", "RLRLLRLR", "RLLLLLLR", "RLLRRLLR", "RLLLLLLR"], "up": ["..RRRR..", ".RLLLLR.", "RLLLLLLR", "RLLLLLLR", "RLLLLLLR", "RLLLLLLR", "RLLLLLLR"], "side": ["..RRRR..", ".RLLLLR.", "RLLLLLLR", "RLLLRLRR", "RLLLLLLR", "RLLLLRLR", "RLLLLLLR"]}, "stack": ["........", ".RRRRRR.", ".RLLLLR.", "RRRRRRR.", "RBBBBBR.", ".RRRRRRR", ".RMMMMMR", ".RRRRRRR"], "abe": ["..RRRR..", ".RLLLLR.", ".RRLLRR.", ".RRRRRR.", "..RRRR..", ".RBRRBR.", "RLBBBBLR", ".RR..RR."]};
+// game art, drawn inside a 48x30 box at (x,y), using each game's real sprites
+function titleArt(i,x,y){const g={r,box,txt,spr:tPut};const spr=tPut;
+  const bk=(k,bx,by,w)=>{const sp=SP.book[k],sw=sp[0].length;sp.forEach((row,j)=>{for(let q=0;q<w;q++){const ch=q<3?row[q]:q>=w-3?row[sw-(w-q)]:row[3+((q-3)%(sw-6))];r(bx+q,by+j,1,1,ch)}})};
+  if(i===0){bk("B",x+6,y+2,30);bk("M",x+3,y+9,36);bk("L",x+5,y+16,38);r(x+1,y+23,46,2,"R");r(x+2,y+25,44,1,"M");r(x+6,y+26,2,3,"R");r(x+40,y+26,2,3,"R")}
+  if(i===1){SP.cards.P.slice(0,30).forEach((row,j)=>[...row].forEach((ch,q)=>r(x+4+q,y+j,1,1,ch)))}
+  if(i===2){const seg=(sx,o,k)=>{for(let q=0;q<8;q++){const yy=y+14+((q+o*2)>>1)%2*(((q>>2)+o)%2?1:-1);r(sx+q,yy,1,2,"R");if(k!=="R")r(sx+q,yy+1,1,1,k)}};
+    seg(x,0,"R");seg(x+8,1,"B");seg(x+16,0,"B");spr(SP.sweater,x+24,y+10);spr(SP.ball.map(s=>s.replace(/k/g,"B")),x+38,y+10-1)}
+  if(i===3){["K","P","Y","T","P"].forEach((k,q)=>{const cx=x+1+q*9;box(cx-1,y,11,11,"L","R");SP.chs[k].forEach((row,j)=>[...row].forEach((ch,c)=>{if(ch==="R")r(cx+c,y+1+j,1,1,"R")}))});
+    r(x,y+14,48,1,"R");r(x,y+15,48,14,"L");["K","K","P","Y","T","K","P","K"].forEach((k,q)=>{spr(SP.fab[k],x+2+q*6,y+17);spr(SP.fab[k==="K"?"P":"K"],x+2+q*6,y+23)})}
+  if(i===4){r(x,y+24,30,4,"R");r(x+1,y+25,28,1,"M");r(x+2,y+28,2,2,"R");r(x+26,y+28,2,2,"R");spr(SP.cat[0],x+6,y+11);spr(SP.star,x+38,y+8);spr(SP.star,x+42,y+18)}
+  if(i===5){spr(SP.hol,x+30,y);r(x+24,y+11,24,9,"R");r(x+25,y+13,22,1,"M");r(x+26,y+20,2,8,"R");r(x+44,y+20,2,8,"R");spr(SP.page,x+6,y+13)}
+  if(i===6){const cs=[["028","7"],["398","2"],["641","5"],["746","43"]];cs.forEach(([a,b],j)=>{const bx=x+j*12;box(bx,y,11,30,["B","M","L","B"][j],"R");box(bx+1,y+5,9,13,"L","R");txt(a.slice(0,2),bx+2,y+6,"R");txt(a.slice(2),bx+2,y+12,"R")});r(x-1,y+30,49,2,"R")}
+  if(i===7){r(x+12,y,24,16,"R");r(x+13,y+1,22,2,"M");r(x+13,y+4,22,5,"R");r(x+13,y+10,22,5,"R");[["B",14],["L",17],["M",20],["B",24],["L",27],["M",31]].forEach(([k,bx])=>{r(x+bx,y+5,2,4,k);r(x+bx+1,y+11,2,4,k)});
+    spr([...SP.ghost.down,"R.RR.RR."],x+4,y+20);spr(SP.stack,x+18,y+20);spr(SP.abe,x+36,y+20)}}
+
+function tPut(a,x,y){a.forEach((row,j)=>[...row].forEach((ch,q)=>{if(ch!=="."&&C[ch])r(x+q,y+j,1,1,ch)}))}
+function drawTitle(){const T=["STACKS ON", "STACKS"];r(0,0,W,H,"L");
+  r(0,0,W,16,"R");for(let x=4;x<W;x+=8){r(x,2,2,2,((x>>3)+(t>>3))%2?"M":"L");r(x,12,2,2,((x>>3)+(t>>3))%2?"L":"M")}ctr("OVERDUE ARCADE",6,"L");
+  const o=T.length===1?7:0;T.forEach((s,j)=>ctr(s,22+o+j*14,"R",10));titleArt(0,56,52);
+  const ly=88;box(20,ly,120,30,"M","R");ctr("HIGH SCORES",ly+3,"R");
+  const top=(typeof scores!=="undefined"?scores:[]).slice(0,3);for(let j=0;j<3;j++){const yy=ly+11+j*6;txt((j+1)+".",26,yy,"R");
+    if(top[j]){txt(String(top[j].n).toUpperCase().slice(0,12),36,yy,"R");const ss=String(top[j].s).padStart(4,"0");txt(ss,134-tw(ss),yy,"R")}else{txt("-",36,yy,"R");txt("----",134-tw("----"),yy,"R")}}
+  if((t>>5)%2)ctr("INSERT CARD: SPACE / TAP",122,"R");ctr("BOARD CLOSES "+BOARD_CLOSES,134,"B")}
+// ---- end title ----
+function frame(){t++;
+  c.drawImage(bgC,0,0);
+  for(let y=24;y<H;y+=24)r(0,(y+cam)%H,W,1,"B");
+  if(st==="title"){
+    cart(BASE_Y);[60,56,52].forEach((w,i)=>book((W-w)/2,BASE_Y-(i+1)*BH,w,KS[i]));skein(75,BASE_Y-3*BH-6);
+    box(14,26,132,44,"L","R");r(16,28,128,2,"M");ctr("STACKS",34,"R",12);ctr("ON STACKS",48,"R",12);
+    if((t>>5)%2)ctr("PRESS SPACE / TAP",82,"R");hud();drawTitle();requestAnimationFrame(frame);return}
+  cam+=(camT-cam)*.12;
+  if(BASE_Y+cam<H)cart(BASE_Y+cam);
+  stack.forEach((b,i)=>{const y=topY(i)+cam;if(y>-BH&&y<H)book(b.x,y,b.w,b.k)});
+  if(st==="play"&&mov){mov.x+=dir*speed;if(mov.x+mov.w>W+4&&dir>0)dir=-1;if(mov.x<-4&&dir<0)dir=1;
+    const y=topY(stack.length)+cam-14;book(mov.x,y,mov.w,mov.k);
+    spr(DROPMK,Math.round(mov.x+mov.w/2)-2,y+BH+1);}
+  falls.forEach(f=>{f.vy+=.25;f.y+=f.vy;book(f.x,f.y,f.w,f.k)});falls=falls.filter(f=>f.y<H+10);
+  pops.forEach(p=>{p.life--;p.y-=.3;txt(p.s,6,p.y,"R")});pops=pops.filter(p=>p.life>0);
+  if(flash>0){flash--;if(flash%2)r(0,12,W,1,"R")}
+  if(st==="over"){box(14,30,132,58,"L","R");r(16,32,128,2,"M");ctr("CHECKED OUT",38,"R",10);
+    ctr("SCORE "+score,52,"R");ctr("BOOKS "+(stack.length-1),60,"R");
+    const fh=document.getElementById("nameForm").hidden;
+    if(!fh)ctr("SAVE YOUR SCORE >",76,"R");
+    else{if(newBest)ctr("NEW PERSONAL BEST!",68,"R");else if(me)ctr("YOUR BEST "+myBest(),68,"R");
+      if((t>>5)%2)ctr("SPACE / TAP: AGAIN",76,"R")}}
+  hud();requestAnimationFrame(frame)}
+st="title";stack=null;requestAnimationFrame(frame);cv.focus();
+</script>
+
+</body>
+</html>

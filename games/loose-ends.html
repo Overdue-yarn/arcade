@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>[hidden]{display:none!important}html{color-scheme:light}body{margin:0;font:14px system-ui,sans-serif}</style>
+</head>
+<body>
+<title>Loose Ends</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Special+Elite&display=swap">
+<style>
+/* Layout: handheld console on butter, high-score card beside it (same shell as Stacks on Stacks) */
+:root{--slip:#fffaeb;--butter:#f6ebc8;--blue:#b9d4ea;--red:#a9473f;--ink:#1a1a1a;
+  --label:"Oswald","Arial Narrow",sans-serif;--typed:"Special Elite","Courier New",monospace}
+body{background:var(--butter);color:var(--ink);font-family:var(--typed);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px}
+.wrap{max-width:900px;margin:0 auto;display:flex;flex-wrap:wrap;gap:24px;justify-content:center;align-items:flex-start}
+.gb{background:var(--red);padding:18px 18px 14px;border-radius:8px 8px 40px 8px;max-width:100%}
+canvas{display:block;width:480px;height:auto;image-rendering:pixelated;border:4px solid var(--butter);cursor:pointer;touch-action:manipulation}
+.brand{font-family:var(--label);letter-spacing:.22em;font-size:11px;color:var(--butter);margin-top:8px;display:flex;justify-content:space-between}
+.side{background:var(--slip);border:1px solid var(--blue);padding:18px;width:260px;max-width:100%;display:flex;flex-direction:column;gap:12px}
+h2{font-family:var(--label);text-transform:uppercase;letter-spacing:.16em;font-size:14px;color:var(--red);margin:0}
+ol{margin:0;padding-left:1.6em;font-size:15px;display:flex;flex-direction:column;gap:2px;font-variant-numeric:tabular-nums}
+ol li span{float:right}
+.empty{color:var(--red);font-size:14px;list-style:none;margin-left:-1.6em}
+form{display:flex;flex-direction:column;gap:6px}
+.lab{font-family:var(--label);text-transform:uppercase;letter-spacing:.1em;font-size:11px;color:var(--red)}
+input{font-family:var(--typed);font-size:15px;padding:6px;border:1.5px solid var(--red);background:var(--slip);color:var(--ink);width:100%;min-width:0}
+button{font-family:var(--label);text-transform:uppercase;letter-spacing:.12em;background:var(--red);color:var(--slip);border:0;padding:6px 12px;cursor:pointer}
+button:focus-visible,input:focus-visible,canvas:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.me{margin:0;font-size:13px}.link{background:none;color:var(--red);padding:0 2px;text-decoration:underline;font-family:var(--typed);text-transform:none;letter-spacing:0}
+.help{font-size:13px;line-height:1.5;margin:0}
+.note{font-size:12px;color:var(--red);margin:0}
+</style>
+
+<div class="wrap">
+  <div class="gb">
+    <canvas id="cv" width="160" height="144" tabindex="0" aria-label="Loose Ends game. Use arrow keys or swipe to steer the yarn."></canvas>
+    <div class="brand"><span>OVERDUE · DOT MATRIX</span><span>PLAYTEST v6</span></div>
+  </div>
+  <aside class="side">
+    <h2>High scores</h2>
+    <p id="meLine" class="me" hidden>Playing as <b id="meName"></b> <button type="button" id="switchBtn" class="link">Not you?</button></p>
+    <ol id="board"></ol>
+    <form id="nameForm" hidden>
+      <label for="nameInput" class="lab">Name (shown on the board)</label>
+      <input id="nameInput" maxlength="12" placeholder="Your name" autocomplete="nickname" required>
+      <label for="emailInput" class="lab">Email (private, so we can send your prize)</label>
+      <input id="emailInput" type="email" placeholder="you@example.com" autocomplete="email" required>
+      <button type="submit">Save score</button>
+    </form>
+    <p class="help"><b>Arrow keys, WASD or swipe</b> to steer the strand. Collect the yarn skeins (the twisted hanks with a little label band) to grow; each skein adds its colorway to the strand. Hitting a shelf, the edge or your own strand ends the run. Every 5 skeins, the yarn speeds up. Fill the whole room and you win, with a 50-point bonus.</p>
+    <p class="help">You enter your name once; only a new personal best updates the board.</p>
+    <p class="note">Playtest board: saved in this browser only.</p>
+  </aside>
+</div>
+
+<script>
+const C={L:"#fffaeb",M:"#f6ebc8",B:"#b9d4ea",R:"#a9473f"};
+const cv=document.getElementById("cv"),c=cv.getContext("2d");c.imageSmoothingEnabled=false;
+const W=160,H=144,CS=8,COLS=20,ROWS=16,GY=14;
+const r=(x,y,w,h,k)=>{c.fillStyle=C[k];c.fillRect(Math.round(x),Math.round(y),w,h)};
+const FONT={A:"010101111101101",B:"110101110101110",C:"011100100100011",D:"110101101101110",E:"111100110100111",F:"111100110100100",G:"011100101101011",H:"101101111101101",I:"111010010010111",J:"001001001101010",K:"101101110101101",L:"100100100100111",M:"101111111101101",N:"110101101101101",O:"010101101101010",P:"110101110100100",Q:"010101101110011",R:"110101110101101",S:"011100010001110",T:"111010010010010",U:"101101101101111",V:"101101101101010",W:"101101111111101",X:"101101010101101",Y:"101101010010010",Z:"111001010100111","0":"111101101101111","1":"010110010010111","2":"110001010100111","3":"110001010001110","4":"101101111001001","5":"111100110001110","6":"011100111101111","7":"111001010010010","8":"111101111101111","9":"111101111001110","!":"010010010000010",">":"100010001010100","-":"000000111000000","/":"001001010100100","#":"101111101111101",".":"000000000000010",":":"000010000010000"};
+const fsc=sz=>sz>=14?3:sz>=10?2:1;
+const tw=(s,sz)=>{const k=fsc(sz);return s.length*4*k-k};
+const txt=(s,x,y,k,sz)=>{const sc=fsc(sz);x=Math.round(x);y=Math.round(y);c.fillStyle=C[k];
+  [...String(s).toUpperCase()].forEach((ch,i)=>{const g=FONT[ch];if(g)for(let p=0;p<15;p++)if(g[p]==="1")c.fillRect(x+i*4*sc+(p%3)*sc,y+((p/3)|0)*sc,sc,sc)})};
+const ctr=(s,y,k,sz)=>txt(s,Math.floor((W-tw(s,sz))/2),y,k,sz);
+function fitScreen(){const avail=Math.min(window.innerWidth-80,520);const s=Math.max(1,Math.floor(avail/160));cv.style.width=(160*s)+"px"}
+window.addEventListener("resize",fitScreen);fitScreen();
+const box=(x,y,w,h,f,l)=>{r(x,y,w,h,l);if(w>2&&h>2)r(x+1,y+1,w-2,h-2,f)};
+let ac=null;function beep(f,d,type){try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain();o.type=type||"square";o.frequency.value=f;g.gain.value=.06;g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+d);o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+d)}catch(e){}}
+
+// players and scores (same rules as Stacks on Stacks; player identity shared across Overdue games)
+const KEY="le-scores";
+let scores=[];try{scores=JSON.parse(localStorage.getItem(KEY)||"[]")}catch(e){}
+let me=null;try{me=JSON.parse(localStorage.getItem("oa-me")||localStorage.getItem("sos-me")||"null")}catch(e){}
+let newBest=false;
+const best=()=>scores.length?scores[0].s:0;
+const myBest=()=>{if(!me)return 0;const x=scores.find(q=>q.e===me.e);return x?x.s:0};
+function renderBoard(){const ol=document.getElementById("board");ol.innerHTML="";
+  if(!scores.length){ol.innerHTML='<li class="empty">No scores yet. Be first.</li>';return}
+  scores.slice(0,10).forEach(s=>{const li=document.createElement("li");li.textContent=s.n;const sp=document.createElement("span");sp.textContent=s.s;li.appendChild(sp);ol.appendChild(li)})}
+function renderMe(){const el=document.getElementById("meLine");if(!me){el.hidden=true;return}el.hidden=false;document.getElementById("meName").textContent=me.n+", best "+myBest()}
+function save(){scores.sort((a,b)=>b.s-a.s);try{localStorage.setItem(KEY,JSON.stringify(scores));localStorage.setItem("oa-me",JSON.stringify(me))}catch(e){}renderBoard();renderMe()}
+function upsert(sc){const x=scores.find(q=>q.e===me.e);if(x){x.n=me.n;if(sc>x.s)x.s=sc}else scores.push({n:me.n,s:sc,e:me.e});save()}
+renderBoard();renderMe();
+document.getElementById("nameForm").addEventListener("submit",e=>{e.preventDefault();
+  const n=(document.getElementById("nameInput").value.trim()||"Anonymous").slice(0,12);
+  const em=document.getElementById("emailInput").value.trim().toLowerCase();
+  me={n,e:em};upsert(score);newBest=true;e.target.hidden=true;
+  document.getElementById("nameInput").value="";document.getElementById("emailInput").value="";cv.focus();});
+document.getElementById("switchBtn").addEventListener("click",()=>{me=null;try{localStorage.removeItem("oa-me");localStorage.removeItem("sos-me")}catch(e){}renderMe();cv.focus()});
+
+// game
+// bookcases as [x,y,w,h] in cells; the last two pieces form an L
+const SHELVES=[[4,4,4,2],[13,11,4,2],[15,2,1,2],[3,10,4,2],[3,12,1,2]];
+const WALLS=[];SHELVES.forEach(([x,y,w,h])=>{for(let j=0;j<h;j++)for(let i=0;i<w;i++)WALLS.push([x+i,y+j])});
+const isWall=(x,y)=>WALLS.some(w=>w[0]===x&&w[1]===y);
+const CW=["B","M","L"];
+let st="title",snake,dir,queue,food,skeins,stepT,stepEvery,score,shake,t=0,grow;
+function reset(){won=false;snake=[{x:4,y:8,k:"R"},{x:3,y:8,k:"R"},{x:2,y:8,k:"R"}];dir={x:1,y:0};queue=[];skeins=0;score=0;stepT=0;stepEvery=9;shake=0;grow=0;place()}
+let won=false;
+function place(){const free=[],edge=[];
+  for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){if(isWall(x,y)||snake.some(q=>q.x===x&&q.y===y))continue;
+    (x===0||y===0||x===COLS-1||y===ROWS-1?edge:free).push({x,y})}
+  const pool=free.length?free:edge;
+  if(!pool.length){food=null;won=true;score+=50;beep(1046,.4);end();return}
+  const p=pool[(Math.random()*pool.length)|0];food={x:p.x,y:p.y,k:"B"}}
+function turn(dx,dy){const last=queue.length?queue[queue.length-1]:dir;if(last.x===-dx&&last.y===-dy)return;if(last.x===dx&&last.y===dy)return;if(queue.length<3){queue.push({x:dx,y:dy});if(queue.length===1)stepT=Math.max(stepT,stepEvery-1)}}
+function step(){if(queue.length)dir=queue.shift();const h=snake[0],nx=h.x+dir.x,ny=h.y+dir.y;
+  const body=grow>0?snake:snake.slice(0,-1);
+  if(nx<0||ny<0||nx>=COLS||ny>=ROWS||isWall(nx,ny)||body.some(s=>s.x===nx&&s.y===ny)){shake=10;beep(110,.4,"sawtooth");end();return}
+  const k=snake[0].k;snake.unshift({x:nx,y:ny,k:food&&nx===food.x&&ny===food.y?food.k:k});
+  if(food&&nx===food.x&&ny===food.y){skeins++;score=skeins;grow+=2;beep(660+(skeins%5)*60,.1);if(skeins%5===0){stepEvery=Math.max(4,stepEvery-1);beep(990,.15)}place()}
+  if(grow>0)grow--;else snake.pop();}
+function end(){st="over";newBest=false;const f=document.getElementById("nameForm");f.hidden=true;
+  if(score<=0)return;
+  if(me){if(score>myBest()){upsert(score);newBest=true;beep(880,.25)}return}
+  f.hidden=false;setTimeout(()=>document.getElementById("nameInput").focus(),50)}
+function act(){if(st==="title"){reset();st="play";beep(523,.1);return}
+  if(st==="over"&&document.getElementById("nameForm").hidden){reset();st="play";beep(523,.1)}}
+let sx=null,sy=null;
+cv.addEventListener("pointerdown",e=>{e.preventDefault();cv.focus();sx=e.clientX;sy=e.clientY;if(st!=="play")act()});
+cv.addEventListener("pointerup",e=>{if(sx===null||st!=="play")return;const dx=e.clientX-sx,dy=e.clientY-sy;sx=null;
+  if(Math.max(Math.abs(dx),Math.abs(dy))<12)return;if(Math.abs(dx)>Math.abs(dy))turn(Math.sign(dx),0);else turn(0,Math.sign(dy))});
+window.addEventListener("keydown",e=>{if(document.activeElement.tagName==="INPUT")return;
+  const m={ArrowUp:[0,-1],KeyW:[0,-1],ArrowDown:[0,1],KeyS:[0,1],ArrowLeft:[-1,0],KeyA:[-1,0],ArrowRight:[1,0],KeyD:[1,0]}[e.code];
+  if(m){e.preventDefault();if(st==="play")turn(m[0],m[1]);else act();return}
+  if(e.code==="Space"||e.code==="Enter"){e.preventDefault();act()}});
+
+// drawing
+const bgC=document.createElement("canvas");bgC.width=W;bgC.height=H;
+(()=>{const b=bgC.getContext("2d");const f=(x,y,w,h,k)=>{b.fillStyle=C[k];b.fillRect(x,y,w,h)};
+  f(0,12,W,H-12,"L");
+  for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++)if((x+y)%2===0)f(x*CS,GY+y*CS,CS,CS,"M");
+  // rug
+  
+  f(0,12,W,2,"R");f(0,142,W,2,"R");f(0,12,1,132,"R");f(159,12,1,132,"R");
+  // classic library bookcases, three-quarter view
+  const spines=(x0,x1,y,hmax,seed)=>{let x=x0,i=seed;const pal=["B","L","M"];while(x<x1){const w=(i*7)%4===0?3:2;if(x+w>x1)break;const h=(i*3)%4===0?hmax-1:hmax;f(x,y-h,w,h,pal[i%3]);x+=w;if(i%3===2&&x<x1-2)x+=1;i++}};
+  const caseAt=(x,y,w,h,top,st=6)=>{f(x,y,w,h,"R");if(top){f(x+1,y+1,w-2,2,"M");f(x,y+3,w,1,"R")}
+    for(let sy=y+(top?4:1);sy+st<=y+h;sy+=st){f(x+1,sy,w-2,st-1,"R");spines(x+1,x+w-1,sy+st-1,st-1,x+sy);f(x,sy+st-1,w,1,"R")}};
+  SHELVES.forEach(([x,y,w,h],i)=>{const px=x*CS,py=GY+y*CS;
+    // the L's leg (piece after a wide piece sitting directly under its left end) continues the case without a new top
+    const prev=SHELVES[i-1];const leg=prev&&prev[0]===x&&prev[1]+prev[3]===y&&w===1;
+    if(leg){f(px,py-1,CS,1,"R");caseAt(px,py-1,CS,h*CS+1,false,5)}else caseAt(px,py,w*CS,h*CS,true)});
+})();
+const YARN=["..RRRR..",".RMRRMR.","RMRRMRRR","RRRMRRMR","RMRRMRRR","RRRMRRMR",".RMRRMR.","..RRRR.."];
+const SK=["..RRRR..",".RkRkkR.","RkkRkkRR","RRkkRkkR","RkRkkRkR",".RkkRkR.","..RRRRR.",".......R"];
+function spr(a,x,y,k){a.forEach((row,j)=>[...row].forEach((ch,i)=>{if(ch!==".")r(x+i,y+j,1,1,ch==="k"?k:ch)}))}
+// Unraveling Sweater snake: sweater head pulling a kinked, frogged strand
+const SWEATER=["RR....RR","RBRRRRBR","RBBMMBBR",".RBBBBR.",".RBBBBR.",".RBBBBR.",".RRRRRR.","........"];
+function rotH(rows,dir){const n=8,out=[];for(let y=0;y<n;y++){let row="";for(let x=0;x<n;x++){let v;
+  if(dir==="r")v=rows[y][x];if(dir==="l")v=rows[y][n-1-x];if(dir==="d")v=rows[n-1-x][y];if(dir==="u")v=rows[x][n-1-y];row+=v}out.push(row)}return out}
+const dirTo=(a,b)=>b.x>a.x?"r":b.x<a.x?"l":b.y>a.y?"d":"u";
+function seg(x,y,conn,k,i){const ck=k;const hor=conn.has("l")||conn.has("r"),vert=conn.has("u")||conn.has("d");const o=i%2;
+  if(hor&&!vert){for(let q=0;q<8;q++){const yy=y+3+((q+o*2)>>1)%2*(((q>>2)+o)%2?1:-1);r(x+q,yy,1,2,"R");if(ck!=="R")r(x+q,yy+1,1,1,ck)}}
+  else if(vert&&!hor){for(let q=0;q<8;q++){const xx=x+3+((q+o*2)>>1)%2*(((q>>2)+o)%2?1:-1);r(xx,y+q,2,1,"R");if(ck!=="R")r(xx+1,y+q,1,1,ck)}}
+  else{r(x+3,y+3,2,2,"R");for(const d of conn){if(d==="r")r(x+5,y+3,3,2,"R");if(d==="l")r(x,y+3,3,2,"R");if(d==="u")r(x+3,y,2,3,"R");if(d==="d")r(x+3,y+5,2,3,"R")}if(ck!=="R")r(x+4,y+4,1,1,ck)}}
+function tailPiece(x,y,dir){const dx=dir==="r"?1:dir==="l"?-1:0,dy=dir==="d"?1:dir==="u"?-1:0;r(x+3,y+3,2,2,"R");r(x+3+dx*2,y+3+dy*2+(dx?1:0),2,1,"R");r(x+4+dx*4,y+3+dy*4,1,1,"R")}
+function strand(){const n=snake.length;
+  for(let i=n-1;i>=1;i--){const s=snake[i],px=s.x*CS,py=GY+s.y*CS;
+    if(i===n-1){tailPiece(px,py,dirTo(s,snake[i-1]));continue}
+    const conn=new Set([dirTo(s,snake[i-1]),dirTo(s,snake[i+1])]);seg(px,py,conn,s.k,i)}
+  const h=snake[0];const d=n>1?dirTo(snake[1],h):"r";spr(rotH(SWEATER,d),h.x*CS,GY+h.y*CS)}
+function hud(){r(0,0,W,11,"R");r(0,11,W,1,"M");txt("SKEINS "+(score||0),3,2,"L");const h="SPEED "+(st==="play"?10-stepEvery:1);txt(h,157-tw(h),2,"L")}
+
+// ---- shared Arcade Marquee title screen ----
+const BOARD_CLOSES="OCT 31";
+const SP={"book": {"L": ["RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR", "RRRLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRLLR", "RRRLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RRRBBBBBBBBBBBBBBBBBBBBBBBBBBLLR", "RRRLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR"], "B": ["RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR", "RRRBBBBBBBBBBBBBBBBBBBBBBBBBBBBR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRBBR", "RRRBBBBBBBBBBBBBBBBBBBBBBBBBBBBR", "RRRBBBBBBBBBBBBBBBBBBBBBBBBBBBBR", "RRRBBBBBBBBBBBBBBBBBBBBBBBBBBBBR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR"], "M": ["RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR", "RRRMMMMMMMMMMMMMMMMMMMMMMMMMMMMR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRMMR", "RRRMMMMMMMMMMMMMMMMMMMMMMMMMMMMR", "RRRBBBBBBBBBBBBBBBBBBBBBBBBBBMMR", "RRRMMMMMMMMMMMMMMMMMMMMMMMMMMMMR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR"], "R": ["RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR", "RRRMMMMMMMMMMMMMMMMMMMMMMMMMMRRR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR"]}, "cart": [".RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR.", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR", "RRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMRR", "RRMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMRR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR", ".RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR.", "..RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR..", "........RRR..............................................................................RRR........", "........RRR..............................................................................RRR........", "........RRR..............................................................................RRR........", "........RRR..............................................................................RRR........", "........RRR..............................................................................RRR........", "........RRR..............................................................................RRR........", ".......RRRRR............................................................................RRRRR.......", "......RBBBBBR..........................................................................RBBBBBR......", "......RBBBBBR..........................................................................RBBBBBR......", ".......RRRRR............................................................................RRRRR......."], "skein": ["..RRRRRR..", ".RBRMMRBR.", "RBBRMRRBBR", "RBBRRMRBBR", ".RBRMMRBR.", "..RRRRRR.."], "cards": {"": ["RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLRRLLLRLLRRRLRRRLLLLLRRLLRLRLRRRLLLLR", "RLLLRLRLRLRLLRLLRLLLLLLLRLRLRLRLRLLLLLLR", "RLLLRLRLRRRLLRLLRRLLLLLLRLRLRLRLRRLLLLLR", "RLLLRLRLRLRLLRLLRLLLLLLLRLRLRLRLRLLLLLLR", "RLLLRRLLRLRLLRLLRRRLLLLLRRLLRRRLRRRLLLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR"], "P": ["RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLRRLLLRLLRRRLRRRLLLLLRRLLRLRLRRRLLLLR", "RLLLRLRLRLRLLRLLRLLLLLLLRLRLRLRLRLLLLLLR", "RLLLRLRLRRRLLRLLRRLLLLLLRLRLRLRLRRLLLLLR", "RLLLRLRLRLRLLRLLRLLLLLLLRLRLRLRLRLLLLLLR", "RLLLRRLLRLRLLRLLRRRLLLLLRRLLRRRLRRRLLLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRLLLLR", "RLLLLRLLLLLLLLLLLLLLLLLLLLLLLLLLLLRLLLLR", "RLLLLRLRRLLLRLLRLRLLLLLLRLLRLRLLLLRLLLLR", "RLLLLRLRLRLRLRLRLRLLLLLRRLLRLRLLLLRLLLLR", "RLLLLRLRLRLRLRLRLRLLLLLLRLLRRRLLLLRLLLLR", "RLLBBRLRLRLRLRLRLRLLLLLLRLLLLRLLLLRBBLLR", "RLLLLRLRLRLLRLLLRLLLLLLRRRLLLRLLLLRLLLLR", "RLLLLRLLLLLLLLLLLLLLLLLLLLLLLLLLLLRLLLLR", "RLLLLRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR"], "O": ["RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLRRLLLRLLRRRLRRRLLLLLRRLLRLRLRRRLLLLR", "RLLLRLRLRLRLLRLLRLLLLLLLRLRLRLRLRLLLLLLR", "RLLLRLRLRRRLLRLLRRLLLLLLRLRLRLRLRRLLLLLR", "RLLLRLRLRLRLLRLLRLLLLLLLRLRLRLRLRLLLLLLR", "RLLLRRLLRLRLLRLLRRRLLLLLRRLLRRRLRRRLLLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRLLR", "RLLLLLLRLLLLLLLLLLLLLLLLLLLLLLLLLLLLRLLR", "RLLLLLLRLRRLLLRLLRLRLLLLLLRLLRLRLLLLRLLR", "RLLLLLLRLRLRLRLRLRLRLLLLLRRLLRLRLLLLRLLR", "RLLLLLLRLRLRLRLRLRLRLLLLLLRLLRRRLLLLRLLR", "RLLBBBBRLRLRLRLRLRLRLLLLLLRLLLLRLLLLRLLR", "RLLLLLLRLRLRLLRLLLRLLLLLLRRRLLLRLLLLRLLR", "RLLLLLLRLLLLLLLLLLLLLLLLLLLLLLLLLLLLRLLR", "RLLLLLLRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR"], "S": ["RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLRRLLLRLLRRRLRRRLLLLLRRLLRLRLRRRLLLLR", "RLLLRLRLRLRLLRLLRLLLLLLLRLRLRLRLRLLLLLLR", "RLLLRLRLRRRLLRLLRRLLLLLLRLRLRLRLRRLLLLLR", "RLLLRLRLRLRLLRLLRLLLLLLLRLRLRLRLRLLLLLLR", "RLLLRRLLRLRLLRLLRRRLLLLLRRLLRRRLRRRLLLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRLLR", "RLLLLRRLRLRRLRBRRLRLRRLRLRRLRLRRLRLLLLLR", "RLLLLLLRRLRLRRBRLRRLRLRRLRLRRLRLRRLRLLLR", "RLLLLLLRLRRLRLRRLRLRRLRLRRLRLRRLRLRRLLLR", "RLLLLLRLRRLRLRRLRLRRLRLRRLRLRRLRLRRLLLLR", "RLLLLLRLRLRRLRBRRLRLRRLRLRRLRLRRLRLRLLLR", "RLLLLLLRRLRLRRBRLRRLRLRRLRLRRLRLRRLRLLLR", "RLLBBBRRBRBRRBRBRRBRBRRBRBRRBRBRRBRBBLLR", "RLLLLLRLRRLRLRRLRLRRLRLRRLRLRRLRLRRLLLLR", "RLLLLLLLRLRRLRBRRLRLRRLRLRRLRLRRLRLRRLLR", "RLLLLRLRLRRLRLRRLRLRRLRLRRLRLRRLRLRLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR"]}, "sweater": ["RR....RR", "RBRRRRBR", "RBBMMBBR", ".RBBBBR.", ".RBBBBR.", ".RBBBBR.", ".RRRRRR.", "........"], "ball": ["..RRRR..", ".RkRkkR.", "RkkRkkRR", "RRkkRkkR", "RkRkkRkR", ".RkkRkR.", "..RRRRR.", ".......R"], "chs": {"K": ["LLLLLLLLL", "LLLLLLLLL", "LLLLLLLLL", "LLLLLLLLL", "LLLLLLLLL", "LLLLLLLLL", "LLLLLLLLL", "LLLLLLLLL", "LLLLLLLLL"], "P": ["LLLLLLLLL", "LLLLLLLLL", "LLLLLLLLL", "LLLRRRLLL", "LLLRRRLLL", "LLLRRRLLL", "LLLLLLLLL", "LLLLLLLLL", "LLLLLLLLL"], "Y": ["LLLLLLLLL", "LLLLLLLLL", "LLLRRRLLL", "LLRLLLRLL", "LLRLLLRLL", "LLRLLLRLL", "LLLRRRLLL", "LLLLLLLLL", "LLLLLLLLL"], "T": ["LLLLLLLLL", "LLLLLLLRL", "LLLLLLRLL", "LLLLLRLLL", "LLLLRLLLL", "LLLRLLLLL", "LLRLLLLLL", "LRLLLLLLL", "LLLLLLLLL"]}, "fab": {"K": ["R...R", "R...R", ".R.R.", ".RRR.", "....."], "P": [".....", ".....", "RRRRR", ".....", "....."], "Y": [".RRR.", "R...R", "R...R", "R...R", ".RRR."], "T": ["....R", "...R.", "..R..", ".R...", "R...."]}, "cat": [["................", ".RR........R..R.", "R..........RRRR.", "R.........RRRRR.", ".R........RRRLRR", "..R.......RRRRRR", "..RRRRRRRRRRRRR.", "..RRRRRRRRRRRR..", "..RRRRRRRRRRR...", "..RRRRRRRRRRR...", ".RR.........RR..", "RR...........RR.", "R.............RR"], ["...........R..R.", "RR.........RRRR.", "R.........RRRRR.", ".R........RRRLRR", "..R.......RRRRRR", "..RRRRRRRRRRRRR.", "..RRRRRRRRRRRR..", "..RRRRRRRRRRR...", "..RRRRRRRRRRR...", "................", "....RR...RR.....", ".....RR.RR......", "......RRR......."], ["................", "R..........R..R.", "R..........RRRR.", ".R........RRRRR.", ".R........RRRLRR", "..R.......RRRRRR", "..RRRRRRRRRRRRR.", "..RRRRRRRRRRRR..", "..RRRRRRRRRRR...", "..RRRRRRRRRRR...", "...RR.....RR....", "..RR.......RR...", "..R.........R..."], ["...........R..R.", "RR.........RRRR.", ".R........RRRRR.", "..R.......RRRLRR", "..R.......RRRRRR", "..RRRRRRRRRRRRR.", "..RRRRRRRRRRRR..", "..RRRRRRRRRRR...", "..RRRRRRRRRRR...", "................", "....R.R.R.R.....", "....R.R.R.R.....", "...RR.RRRR......"]], "star": ["R.R.R", ".RLR.", "RLLLR", ".RLR.", "R.R.R"], "page": ["...RRRRRR...", "..RRRRRRRR..", ".RRRRRRRRRR.", ".RRLLLLLLRR.", ".RRLRLLRLRR.", ".RRMLLLLMRR.", ".RRLLRRLLRR.", "..RRLLLLRR..", "..RBRLLRBR..", ".RBRBBBBRBR.", "RLBRRRRRRBLR", ".RBBBBBBBBR.", "..RRRRRRRR..", "....R..R....", "....R..R....", "...RR..RR..."], "hol": ["....RRRR....", "...RRRRRR...", "..RRRRRRRR..", "..RLLLLLLR..", "..RRRLLRRR..", "..RLRLLRLR..", "..RLLRRLLR..", "...RLLLLR...", "..RMMMMMMR..", ".RMMBBBBMMR.", "RLMMBBBBMMLR", ".RMMBBBBMMR.", ".RRRRRRRRRRR"], "clock": [".......RRRRRRR.......", ".....RRLLLLLLLRR.....", "....RLLLLLRLLLLLR....", "...RLLLLLLRLLLLLLR...", "..RLLLLLLLLLLLLLLLR..", ".RLLLLLLLLRLLLLLLLLR.", ".RLLLLLLLLRLLLLLLLLR.", "RLLLLLLLLLRLLLLLLLLLR", "RLLLLLLLLLRLLLLLLLLLR", "RLLLLLLLLLRLLLLLLLLLR", "RLRRLLLLLLRRRLLLLRRLR", "RLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLLLLLLLR", ".RLLLLLLLLLLLLLLLLLR.", ".RLLLLLLLLLLLLLLLLLR.", "..RLLLLLLLLLLLLLLLR..", "...RLLLLLLRLLLLLLR...", "....RLLLLLRLLLLLR....", ".....RRLLLLLLLRR.....", ".......RRRRRRR.......", "..........R..........", "..........R..........", "..........R..........", "..........R..........", "..........R..........", "..........R..........", "........RRRRR........", "........RMMMR........", "........RMMMR........", "........RMMMR........", "........RRRRR........"], "ghost": {"down": ["..RRRR..", ".RLLLLR.", "RLLLLLLR", "RLRLLRLR", "RLLLLLLR", "RLLRRLLR", "RLLLLLLR"], "up": ["..RRRR..", ".RLLLLR.", "RLLLLLLR", "RLLLLLLR", "RLLLLLLR", "RLLLLLLR", "RLLLLLLR"], "side": ["..RRRR..", ".RLLLLR.", "RLLLLLLR", "RLLLRLRR", "RLLLLLLR", "RLLLLRLR", "RLLLLLLR"]}, "stack": ["........", ".RRRRRR.", ".RLLLLR.", "RRRRRRR.", "RBBBBBR.", ".RRRRRRR", ".RMMMMMR", ".RRRRRRR"], "abe": ["..RRRR..", ".RLLLLR.", ".RRLLRR.", ".RRRRRR.", "..RRRR..", ".RBRRBR.", "RLBBBBLR", ".RR..RR."]};
+// game art, drawn inside a 48x30 box at (x,y), using each game's real sprites
+function titleArt(i,x,y){const g={r,box,txt,spr:tPut};const spr=tPut;
+  const bk=(k,bx,by,w)=>{const sp=SP.book[k],sw=sp[0].length;sp.forEach((row,j)=>{for(let q=0;q<w;q++){const ch=q<3?row[q]:q>=w-3?row[sw-(w-q)]:row[3+((q-3)%(sw-6))];r(bx+q,by+j,1,1,ch)}})};
+  if(i===0){bk("B",x+6,y+2,30);bk("M",x+3,y+9,36);bk("L",x+5,y+16,38);r(x+1,y+23,46,2,"R");r(x+2,y+25,44,1,"M");r(x+6,y+26,2,3,"R");r(x+40,y+26,2,3,"R")}
+  if(i===1){SP.cards.P.slice(0,30).forEach((row,j)=>[...row].forEach((ch,q)=>r(x+4+q,y+j,1,1,ch)))}
+  if(i===2){const seg=(sx,o,k)=>{for(let q=0;q<8;q++){const yy=y+14+((q+o*2)>>1)%2*(((q>>2)+o)%2?1:-1);r(sx+q,yy,1,2,"R");if(k!=="R")r(sx+q,yy+1,1,1,k)}};
+    seg(x,0,"R");seg(x+8,1,"B");seg(x+16,0,"B");spr(SP.sweater,x+24,y+10);spr(SP.ball.map(s=>s.replace(/k/g,"B")),x+38,y+10-1)}
+  if(i===3){["K","P","Y","T","P"].forEach((k,q)=>{const cx=x+1+q*9;box(cx-1,y,11,11,"L","R");SP.chs[k].forEach((row,j)=>[...row].forEach((ch,c)=>{if(ch==="R")r(cx+c,y+1+j,1,1,"R")}))});
+    r(x,y+14,48,1,"R");r(x,y+15,48,14,"L");["K","K","P","Y","T","K","P","K"].forEach((k,q)=>{spr(SP.fab[k],x+2+q*6,y+17);spr(SP.fab[k==="K"?"P":"K"],x+2+q*6,y+23)})}
+  if(i===4){r(x,y+24,30,4,"R");r(x+1,y+25,28,1,"M");r(x+2,y+28,2,2,"R");r(x+26,y+28,2,2,"R");spr(SP.cat[0],x+6,y+11);spr(SP.star,x+38,y+8);spr(SP.star,x+42,y+18)}
+  if(i===5){spr(SP.hol,x+30,y);r(x+24,y+11,24,9,"R");r(x+25,y+13,22,1,"M");r(x+26,y+20,2,8,"R");r(x+44,y+20,2,8,"R");spr(SP.page,x+6,y+13)}
+  if(i===6){const cs=[["028","7"],["398","2"],["641","5"],["746","43"]];cs.forEach(([a,b],j)=>{const bx=x+j*12;box(bx,y,11,30,["B","M","L","B"][j],"R");box(bx+1,y+5,9,13,"L","R");txt(a.slice(0,2),bx+2,y+6,"R");txt(a.slice(2),bx+2,y+12,"R")});r(x-1,y+30,49,2,"R")}
+  if(i===7){r(x+12,y,24,16,"R");r(x+13,y+1,22,2,"M");r(x+13,y+4,22,5,"R");r(x+13,y+10,22,5,"R");[["B",14],["L",17],["M",20],["B",24],["L",27],["M",31]].forEach(([k,bx])=>{r(x+bx,y+5,2,4,k);r(x+bx+1,y+11,2,4,k)});
+    spr([...SP.ghost.down,"R.RR.RR."],x+4,y+20);spr(SP.stack,x+18,y+20);spr(SP.abe,x+36,y+20)}}
+
+function tPut(a,x,y){a.forEach((row,j)=>[...row].forEach((ch,q)=>{if(ch!=="."&&C[ch])r(x+q,y+j,1,1,ch)}))}
+function drawTitle(){const T=["LOOSE", "ENDS"];r(0,0,W,H,"L");
+  r(0,0,W,16,"R");for(let x=4;x<W;x+=8){r(x,2,2,2,((x>>3)+(t>>3))%2?"M":"L");r(x,12,2,2,((x>>3)+(t>>3))%2?"L":"M")}ctr("OVERDUE ARCADE",6,"L");
+  const o=T.length===1?7:0;T.forEach((s,j)=>ctr(s,22+o+j*14,"R",10));titleArt(2,56,52);
+  const ly=88;box(20,ly,120,30,"M","R");ctr("HIGH SCORES",ly+3,"R");
+  const top=(typeof scores!=="undefined"?scores:[]).slice(0,3);for(let j=0;j<3;j++){const yy=ly+11+j*6;txt((j+1)+".",26,yy,"R");
+    if(top[j]){txt(String(top[j].n).toUpperCase().slice(0,12),36,yy,"R");const ss=String(top[j].s).padStart(4,"0");txt(ss,134-tw(ss),yy,"R")}else{txt("-",36,yy,"R");txt("----",134-tw("----"),yy,"R")}}
+  if((t>>5)%2)ctr("INSERT CARD: SPACE / TAP",122,"R");ctr("BOARD CLOSES "+BOARD_CLOSES,134,"B")}
+// ---- end title ----
+function frame(){t++;const ox=shake>0?((shake--%2)?1:-1):0;
+  c.save();c.translate(ox,0);c.drawImage(bgC,0,0);
+  if(st==="title"){
+    snake=[{x:12,y:13,k:"R"},{x:11,y:13,k:"R"},{x:10,y:13,k:"B"},{x:9,y:13,k:"B"},{x:8,y:13,k:"M"},{x:7,y:13,k:"M"},{x:6,y:13,k:"R"}];strand();
+    spr(SK,14*CS,GY+13*CS,"B");
+    box(14,40,132,40,"L","R");r(16,42,128,2,"M");ctr("LOOSE",48,"R",10);ctr("ENDS",62,"R",10);
+    if((t>>5)%2)ctr("PRESS SPACE / TAP",88,"R");
+    c.restore();hud();drawTitle();requestAnimationFrame(frame);return}
+  if(st==="play"){stepT++;if(stepT>=stepEvery){stepT=0;step()}}
+  if(food&&st==="play"){const fx=food.x*CS,fy=GY+food.y*CS,bob=(t>>4)%2;if(bob)r(fx+2,fy+7,4,1,"B");spr(SK,fx,fy-bob,food.k)}
+  strand();
+  c.restore();
+  if(st==="over"){box(14,24,132,76,"L","R");r(16,26,128,2,"M");ctr(won?"ALL WOUND UP!":"TANGLED!",32,"R",10);
+    ctr("SKEINS "+score,50,"R");ctr("LENGTH "+snake.length,59,"R");
+    const fh=document.getElementById("nameForm").hidden;r(24,68,112,1,"B");
+    if(!fh)ctr("SAVE YOUR SCORE >",74,"R");
+    else{if(newBest)ctr("NEW PERSONAL BEST!",74,"R");else if(me)ctr("YOUR BEST "+myBest(),74,"R");
+      if((t>>5)%2)ctr("SPACE / TAP: AGAIN",86,"R")}}
+  hud();requestAnimationFrame(frame)}
+requestAnimationFrame(frame);cv.focus();
+</script>
+
+</body>
+</html>
