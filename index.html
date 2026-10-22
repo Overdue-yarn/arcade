@@ -221,7 +221,7 @@ $("rulesBtn").onclick=showRules;$("rulesOk").onclick=hideRules;modal.onclick=e=>
 // ---- state ----
 let curPeriod=null,curGame=null;
 function openGame(st){mode="open";const crt=$("crt");if(curGame!==st.game){curGame=st.game;crt.classList.remove("ch");crt.innerHTML="";const f=document.createElement("iframe");
-  f.src="games/"+st.game+".html?embed=1";f.title=GAMES[st.game][0];f.allow="autoplay";crt.appendChild(f)}
+  f.src="games/"+st.game+".html?embed=1&v=3";f.title=GAMES[st.game][0];f.allow="autoplay";crt.appendChild(f)}
  $("chrow").hidden=true;$("knobCh").disabled=true;$("infoOpen").hidden=false;$("infoClosed").hidden=true;
  const G=GAMES[st.game]||[st.game,"",""];$("gName").textContent=G[0];$("gBlurb").textContent=G[1];$("gCtl").textContent=G[2];
  const dates=fmt(st.starts_at)+" – "+fmt(st.ends_at)+" ET";$("gDates").textContent=dates;$("rDates").textContent=dates;$("gPrize").textContent=st.prize||"";$("rPrize").textContent=st.prize||"";
