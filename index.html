@@ -54,7 +54,8 @@ h1{font-size:clamp(38px,6vw,60px);line-height:1.05;margin:0}
 .rules h2{margin:0;font-size:30px}
 .rules ol{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:6px;font-size:15px}
 button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
-</style></head><body>
+</style><script>/* hold animations at 60 fps on 90/120/144 Hz screens */(function(){var raf=window.requestAnimationFrame.bind(window),step=1000/60,next=0;window.requestAnimationFrame=function(cb){return raf(function tick(ts){if(!next||ts-next>250)next=ts;if(ts+1<next)return raf(tick);next+=step;cb(ts)})}})();</script>
+</head><body>
 <div class="wrap">
  <header class="head"><div class="headcard">
   <div class="kicker">794.8 OVD · The Arcade</div><h1>The Arcade</h1>
@@ -221,7 +222,7 @@ $("rulesBtn").onclick=showRules;$("rulesOk").onclick=hideRules;modal.onclick=e=>
 // ---- state ----
 let curPeriod=null,curGame=null;
 function openGame(st){mode="open";const crt=$("crt");if(curGame!==st.game){curGame=st.game;crt.classList.remove("ch");crt.innerHTML="";const f=document.createElement("iframe");
-  f.src="games/"+st.game+".html?embed=1&v=3";f.title=GAMES[st.game][0];f.allow="autoplay";crt.appendChild(f)}
+  f.src="games/"+st.game+".html?embed=1&v=4";f.title=GAMES[st.game][0];f.allow="autoplay";crt.appendChild(f)}
  $("chrow").hidden=true;$("knobCh").disabled=true;$("infoOpen").hidden=false;$("infoClosed").hidden=true;
  const G=GAMES[st.game]||[st.game,"",""];$("gName").textContent=G[0];$("gBlurb").textContent=G[1];$("gCtl").textContent=G[2];
  const dates=fmt(st.starts_at)+" – "+fmt(st.ends_at)+" ET";$("gDates").textContent=dates;$("rDates").textContent=dates;$("gPrize").textContent=st.prize||"";$("rPrize").textContent=st.prize||"";

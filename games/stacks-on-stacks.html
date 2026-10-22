@@ -17,6 +17,7 @@ html.embed .side{display:none}
 html.embed .side.asking{display:flex;position:absolute;inset:6% 8%;width:auto;overflow:auto;justify-content:center;box-shadow:4px 4px 0 #a9473f}
 </style>
 <script>if(/[?&]embed=1/.test(location.search))document.documentElement.classList.add("embed")</script>
+<script>/* hold animations at 60 fps on 90/120/144 Hz screens */(function(){var raf=window.requestAnimationFrame.bind(window),step=1000/60,next=0;window.requestAnimationFrame=function(cb){return raf(function tick(ts){if(!next||ts-next>250)next=ts;if(ts+1<next)return raf(tick);next+=step;cb(ts)})}})();</script>
 </head>
 <body>
 <title>Stacks on Stacks</title>
