@@ -246,7 +246,7 @@ addEventListener("message",e=>{const d=e.data||{};if(e.source===window.parent)re
  if(d.type==="overdue-arcade-score")refresh();
  if(d.type==="overdue-arcade-newsletter"&&window.parent!==window)window.parent.postMessage(d,"*")});
 // ---- tell the shop page how tall to make the frame ----
-function sendH(){if(window.parent!==window)window.parent.postMessage({type:"overdue-arcade-height",h:document.documentElement.scrollHeight},"*")}
+function sendH(){if(window.parent!==window)window.parent.postMessage({type:"overdue-arcade-height",h:Math.ceil(document.querySelector(".wrap").getBoundingClientRect().bottom+window.scrollY+48)},"*")}
 new ResizeObserver(sendH).observe(document.body);
 setCh(0);frame();refresh();setInterval(refresh,30000);
 </script></body></html>
