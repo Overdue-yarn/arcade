@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Arcade · Overdue Yarn Co.</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Oswald:wght@500;700&family=Special+Elite&family=Reenie+Beanie&display=swap">
+<style>
+:root{--butter:#F6EBC8;--slip:#FFFAEB;--ink:#1A1A1A;--red:#A9473F;--blue:#B9D4EA;--gilt:#D4AF6A;--blue-shadow:#8FB3D1;
+ --display:"Libre Caslon Text",Georgia,serif;--label:"Oswald","Arial Narrow",sans-serif;--typed:"Special Elite","Courier New",monospace;--hand:"Reenie Beanie",cursive}
+html{color-scheme:light}
+body{margin:0;background:var(--butter);color:var(--ink);font-family:var(--display);line-height:1.55;padding:0 16px 48px}
+[hidden]{display:none!important}
+.wrap{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:32px}
+.head{display:flex;justify-content:center;padding-top:28px}
+.headcard{max-width:760px;width:100%;text-align:center;background:var(--slip);box-shadow:10px 10px 0 var(--blue);padding:28px 22px 24px;display:flex;flex-direction:column;align-items:center;gap:8px;box-sizing:border-box}
+.kicker{font-family:var(--label);font-weight:700;letter-spacing:.18em;font-size:12px;color:var(--red);text-transform:uppercase}
+h1{font-size:clamp(38px,6vw,60px);line-height:1.05;margin:0}
+.intro{font-style:italic;font-size:18px;max-width:54ch;margin:0}
+.stamp{font-family:var(--typed);font-size:14px;color:var(--red);border:2px solid var(--red);padding:3px 12px;transform:rotate(-2deg);margin-top:4px}
+.stage{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:28px;align-items:start}
+@media (max-width:820px){.stage{grid-template-columns:1fr}}
+.tvwrap{display:flex;flex-direction:column;align-items:center;gap:12px}
+.tv{width:min(100%,520px);box-sizing:border-box;background:var(--blue);border-radius:16px;padding:18px;display:grid;grid-template-columns:1fr 64px;gap:14px;position:relative;box-shadow:0 7px 0 var(--blue-shadow);margin-bottom:30px}
+@media (max-width:420px){.tv{grid-template-columns:1fr;padding:12px}.panel{flex-direction:row!important;justify-content:center;padding:8px!important}.grille{display:none}}
+.crt{background:var(--ink);border-radius:30px/24px;border:9px solid var(--ink);padding:12px;position:relative;overflow:hidden}
+.crt canvas,.crt iframe{display:block;width:100%;aspect-ratio:160/144;border:0;border-radius:4px}
+.crt canvas{image-rendering:pixelated}
+.crt.ch::after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(rgba(0,0,0,.12) 0 1px,transparent 1px 3px)}
+.panel{background:var(--slip);border-radius:8px;display:flex;flex-direction:column;align-items:center;gap:12px;padding:12px 0}
+.brand{font-family:var(--label);font-weight:700;letter-spacing:.2em;font-size:9px;color:var(--red)}
+.knob{width:38px;height:38px;border-radius:50%;background:var(--gilt);border:2px solid var(--ink);position:relative;cursor:pointer;padding:0;transition:transform .2s}
+.knob::after{content:"";position:absolute;left:16px;top:3px;width:2px;height:12px;background:var(--ink)}
+.grille{width:40px;height:54px;background:repeating-linear-gradient(var(--ink) 0 2px,transparent 2px 6px)}
+.legs{position:absolute;bottom:-30px;left:36px;right:36px;display:flex;justify-content:space-between}
+.legs i{width:10px;height:30px;background:var(--blue-shadow);transform:skewX(-8deg)}.legs i:last-child{transform:skewX(8deg)}
+.chrow{display:flex;gap:8px;align-items:center;font-family:var(--label);text-transform:uppercase;letter-spacing:.14em;font-size:12px}
+.chrow button{font:inherit;letter-spacing:.12em;background:var(--slip);color:var(--red);border:1.5px solid var(--red);padding:6px 12px;cursor:pointer}
+.chrow span{font-family:var(--typed);letter-spacing:.04em;font-size:14px;min-width:12ch;text-align:center}
+.card,.board{background:var(--slip);padding:22px;box-shadow:8px 8px 0 var(--blue);display:flex;flex-direction:column;gap:12px}
+.card h2{margin:0;font-size:28px;line-height:1.15}
+.label{font-family:var(--label);font-weight:700;letter-spacing:.16em;font-size:12px;color:var(--red);text-transform:uppercase}
+.dl{display:grid;grid-template-columns:max-content 1fr;gap:4px 14px;margin:0;font-size:15px}
+.dl dt{font-family:var(--label);text-transform:uppercase;letter-spacing:.12em;font-size:12px;color:var(--red);padding-top:3px}
+.dl dd{margin:0}.typed{font-family:var(--typed)}
+.btn{align-self:flex-start;font-family:var(--label);text-transform:uppercase;letter-spacing:.14em;font-size:13px;background:var(--red);color:var(--slip);border:0;padding:10px 18px;cursor:pointer}
+.note{font-family:var(--hand);font-size:26px;line-height:1.05;color:var(--red);margin:0}
+.board table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.board th{font-family:var(--label);text-transform:uppercase;letter-spacing:.14em;font-size:12px;color:var(--red);text-align:left;border-bottom:2px solid var(--red);padding:6px 4px}
+.board td{font-family:var(--typed);padding:7px 4px;border-bottom:1px solid var(--blue)}
+.board td:last-child,.board th:last-child{text-align:right}
+.board tr.win td{color:var(--red)}
+.boardhead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:8px}
+.modal{position:fixed;inset:0;background:rgba(26,26,26,.55);display:flex;align-items:center;justify-content:center;padding:16px;z-index:20}
+.rules{background:var(--slip);max-width:560px;width:100%;max-height:86vh;overflow:auto;box-shadow:10px 10px 0 var(--blue);border-top:6px double var(--red);padding:24px 24px 20px;display:flex;flex-direction:column;gap:10px;box-sizing:border-box}
+.rules h2{margin:0;font-size:30px}
+.rules ol{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:6px;font-size:15px}
+button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+</style></head><body>
+<div class="wrap">
+ <header class="head"><div class="headcard">
+  <div class="kicker">794.8 OVD · The Arcade</div><h1>The Arcade</h1>
+  <p class="intro" id="intro">One game, a few days a month. Top score when the board closes wins yarn.</p>
+  <div class="stamp" id="stamp">TUNING IN…</div></div></header>
+ <section class="stage">
+  <div class="tvwrap"><div class="tv">
+    <div class="crt ch" id="crt"><canvas id="screen" width="160" height="144" aria-label="Arcade TV screen"></canvas></div>
+    <div class="panel"><span class="brand">OVERDUE</span>
+     <button class="knob" id="knobCh" aria-label="Change channel"></button>
+     <button class="knob" id="knobVol" aria-label="Volume" style="transform:rotate(70deg)" tabindex="-1"></button>
+     <div class="grille" aria-hidden="true"></div></div>
+    <div class="legs" aria-hidden="true"><i></i><i></i></div></div>
+   <div class="chrow" id="chrow"><button id="chPrev" aria-label="Previous channel">◀ Ch</button><span id="chName">CH 1</span><button id="chNext" aria-label="Next channel">Ch ▶</button></div>
+  </div>
+  <div class="card" id="infoOpen" hidden>
+   <div class="label">This month's game</div><h2 id="gName"></h2><p style="margin:0" id="gBlurb"></p>
+   <dl class="dl"><dt>Board open</dt><dd class="typed" id="gDates"></dd><dt>Prize</dt><dd id="gPrize"></dd><dt>Controls</dt><dd id="gCtl"></dd></dl>
+   <div><button class="btn" id="rulesBtn">Contest rules</button></div>
+   <p class="note">Your best score is the one that counts!</p></div>
+  <div class="card" id="infoClosed">
+   <div class="label">The arcade is closed</div><h2>Back soon</h2>
+   <p style="margin:0">Flip through the channels while you wait. The next game opens with an upcoming release, and Gazette readers hear first.</p>
+   <dl class="dl" id="closedDl"></dl>
+   <p class="note">Practice makes perfect stitches.</p></div>
+ </section>
+ <section class="board" id="boardSec" hidden>
+  <div class="boardhead"><div><div class="label" id="boardLabel"></div><h2 style="margin:4px 0 0;font-size:26px" id="boardTitle"></h2></div>
+   <span class="typed" id="boardClose" style="color:var(--red)"></span></div>
+  <table><thead><tr><th>#</th><th>Name</th><th>Score</th></tr></thead><tbody id="rows"></tbody></table>
+ </section>
+</div>
+<div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="rulesTitle"><div class="rules">
+ <div class="label">Read before you play</div><h2 id="rulesTitle">Arcade contest rules</h2>
+ <ol>
+  <li><b>Who can play:</b> anyone 18 or older living in the United States. Overdue Yarn Co. staff and household members can play for fun but can't win.</li>
+  <li><b>No purchase necessary.</b> Playing is free, and buying something doesn't improve your chances.</li>
+  <li><b>When:</b> the board is open <span class="typed" id="rDates"></span>. Scores saved after it closes don't count.</li>
+  <li><b>How to win:</b> the highest score on the board when it closes wins. If two scores tie, the one reached first wins.</li>
+  <li><b>One spot per player:</b> play as often as you like; the board keeps your best score. One email address per person, please.</li>
+  <li><b>Prize:</b> <span id="rPrize"></span>. We'll email the winner within 3 days of the board closing; if we don't hear back within 7 days, the prize goes to the next score down.</li>
+  <li><b>Fair play:</b> scores that look impossible, or that come from bots, cheats or modified games, will be removed. Our decision on the final board is final.</li>
+  <li><b>Your name and email:</b> your name (or nickname) appears on the public board. Your email stays private and is used to contact the winner. If you leave the newsletter box checked when you save a score, you'll also get <i>The Overdue Gazette</i>; you can unsubscribe any time.</li>
+ </ol>
+ <div><button class="btn" id="rulesOk">Got it, let's play</button></div></div></div>
+<script>
+const FONT={A:"010101111101101",B:"110101110101110",C:"011100100100011",D:"110101101101110",E:"111100110100111",F:"111100110100100",G:"011100101101011",H:"101101111101101",I:"111010010010111",J:"001001001101010",K:"101101110101101",L:"100100100100111",M:"101111111101101",N:"110101101101101",O:"010101101101010",P:"110101110100100",Q:"010101101110011",R:"110101110101101",S:"011100010001110",T:"111010010010010",U:"101101101101111",V:"101101101101010",W:"101101111111101",X:"101101010101101",Y:"101101010010010",Z:"111001010100111","0":"111101101101111","1":"010110010010111","2":"110001010100111","3":"110001010001110","4":"101101111001001","5":"111100110001110","6":"011100111101111","7":"111001010010010","8":"111101111101111","9":"111101111001110","!":"010010010000010",">":"100010001010100","-":"000000111000000","/":"001001010100100","'":"010010000000000","#":"101111101111101",".":"000000000000010",",":"000000000010100","?":"110001010000010","+":"000010111010000",":":"000010000010000"};
+const SP={"book": {"L": ["RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR", "RRRLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRLLR", "RRRLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RRRBBBBBBBBBBBBBBBBBBBBBBBBBBLLR", "RRRLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR"], "B": ["RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR", "RRRBBBBBBBBBBBBBBBBBBBBBBBBBBBBR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRBBR", "RRRBBBBBBBBBBBBBBBBBBBBBBBBBBBBR", "RRRBBBBBBBBBBBBBBBBBBBBBBBBBBBBR", "RRRBBBBBBBBBBBBBBBBBBBBBBBBBBBBR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR"], "M": ["RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR", "RRRMMMMMMMMMMMMMMMMMMMMMMMMMMMMR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRMMR", "RRRMMMMMMMMMMMMMMMMMMMMMMMMMMMMR", "RRRBBBBBBBBBBBBBBBBBBBBBBBBBBMMR", "RRRMMMMMMMMMMMMMMMMMMMMMMMMMMMMR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR"], "R": ["RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR", "RRRMMMMMMMMMMMMMMMMMMMMMMMMMMRRR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR"]}, "cart": [".RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR.", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR", "RRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMRR", "RRMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMMRRMMRR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR", ".RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR.", "..RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR..", "........RRR..............................................................................RRR........", "........RRR..............................................................................RRR........", "........RRR..............................................................................RRR........", "........RRR..............................................................................RRR........", "........RRR..............................................................................RRR........", "........RRR..............................................................................RRR........", ".......RRRRR............................................................................RRRRR.......", "......RBBBBBR..........................................................................RBBBBBR......", "......RBBBBBR..........................................................................RBBBBBR......", ".......RRRRR............................................................................RRRRR......."], "skein": ["..RRRRRR..", ".RBRMMRBR.", "RBBRMRRBBR", "RBBRRMRBBR", ".RBRMMRBR.", "..RRRRRR.."], "cards": {"": ["RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLRRLLLRLLRRRLRRRLLLLLRRLLRLRLRRRLLLLR", "RLLLRLRLRLRLLRLLRLLLLLLLRLRLRLRLRLLLLLLR", "RLLLRLRLRRRLLRLLRRLLLLLLRLRLRLRLRRLLLLLR", "RLLLRLRLRLRLLRLLRLLLLLLLRLRLRLRLRLLLLLLR", "RLLLRRLLRLRLLRLLRRRLLLLLRRLLRRRLRRRLLLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR"], "P": ["RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLRRLLLRLLRRRLRRRLLLLLRRLLRLRLRRRLLLLR", "RLLLRLRLRLRLLRLLRLLLLLLLRLRLRLRLRLLLLLLR", "RLLLRLRLRRRLLRLLRRLLLLLLRLRLRLRLRRLLLLLR", "RLLLRLRLRLRLLRLLRLLLLLLLRLRLRLRLRLLLLLLR", "RLLLRRLLRLRLLRLLRRRLLLLLRRLLRRRLRRRLLLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRLLLLR", "RLLLLRLLLLLLLLLLLLLLLLLLLLLLLLLLLLRLLLLR", "RLLLLRLRRLLLRLLRLRLLLLLLRLLRLRLLLLRLLLLR", "RLLLLRLRLRLRLRLRLRLLLLLRRLLRLRLLLLRLLLLR", "RLLLLRLRLRLRLRLRLRLLLLLLRLLRRRLLLLRLLLLR", "RLLBBRLRLRLRLRLRLRLLLLLLRLLLLRLLLLRBBLLR", "RLLLLRLRLRLLRLLLRLLLLLLRRRLLLRLLLLRLLLLR", "RLLLLRLLLLLLLLLLLLLLLLLLLLLLLLLLLLRLLLLR", "RLLLLRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR"], "O": ["RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLRRLLLRLLRRRLRRRLLLLLRRLLRLRLRRRLLLLR", "RLLLRLRLRLRLLRLLRLLLLLLLRLRLRLRLRLLLLLLR", "RLLLRLRLRRRLLRLLRRLLLLLLRLRLRLRLRRLLLLLR", "RLLLRLRLRLRLLRLLRLLLLLLLRLRLRLRLRLLLLLLR", "RLLLRRLLRLRLLRLLRRRLLLLLRRLLRRRLRRRLLLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRLLR", "RLLLLLLRLLLLLLLLLLLLLLLLLLLLLLLLLLLLRLLR", "RLLLLLLRLRRLLLRLLRLRLLLLLLRLLRLRLLLLRLLR", "RLLLLLLRLRLRLRLRLRLRLLLLLRRLLRLRLLLLRLLR", "RLLLLLLRLRLRLRLRLRLRLLLLLLRLLRRRLLLLRLLR", "RLLBBBBRLRLRLRLRLRLRLLLLLLRLLLLRLLLLRLLR", "RLLLLLLRLRLRLLRLLLRLLLLLLRRRLLLRLLLLRLLR", "RLLLLLLRLLLLLLLLLLLLLLLLLLLLLLLLLLLLRLLR", "RLLLLLLRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR"], "S": ["RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLRRLLLRLLRRRLRRRLLLLLRRLLRLRLRRRLLLLR", "RLLLRLRLRLRLLRLLRLLLLLLLRLRLRLRLRLLLLLLR", "RLLLRLRLRRRLLRLLRRLLLLLLRLRLRLRLRRLLLLLR", "RLLLRLRLRLRLLRLLRLLLLLLLRLRLRLRLRLLLLLLR", "RLLLRRLLRLRLLRLLRRRLLLLLRRLLRRRLRRRLLLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRLLR", "RLLLLRRLRLRRLRBRRLRLRRLRLRRLRLRRLRLLLLLR", "RLLLLLLRRLRLRRBRLRRLRLRRLRLRRLRLRRLRLLLR", "RLLLLLLRLRRLRLRRLRLRRLRLRRLRLRRLRLRRLLLR", "RLLLLLRLRRLRLRRLRLRRLRLRRLRLRRLRLRRLLLLR", "RLLLLLRLRLRRLRBRRLRLRRLRLRRLRLRRLRLRLLLR", "RLLLLLLRRLRLRRBRLRRLRLRRLRLRRLRLRRLRLLLR", "RLLBBBRRBRBRRBRBRRBRBRRBRBRRBRBRRBRBBLLR", "RLLLLLRLRRLRLRRLRLRRLRLRRLRLRRLRLRRLLLLR", "RLLLLLLLRLRRLRBRRLRLRRLRLRRLRLRRLRLRRLLR", "RLLLLRLRLRRLRLRRLRLRRLRLRRLRLRRLRLRLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLBLLLLLLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLR", "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR"]}, "sweater": ["RR....RR", "RBRRRRBR", "RBBMMBBR", ".RBBBBR.", ".RBBBBR.", ".RBBBBR.", ".RRRRRR.", "........"], "ball": ["..RRRR..", ".RkRkkR.", "RkkRkkRR", "RRkkRkkR", "RkRkkRkR", ".RkkRkR.", "..RRRRR.", ".......R"], "chs": {"K": ["LLLLLLLLL", "LLLLLLLLL", "LLLLLLLLL", "LLLLLLLLL", "LLLLLLLLL", "LLLLLLLLL", "LLLLLLLLL", "LLLLLLLLL", "LLLLLLLLL"], "P": ["LLLLLLLLL", "LLLLLLLLL", "LLLLLLLLL", "LLLRRRLLL", "LLLRRRLLL", "LLLRRRLLL", "LLLLLLLLL", "LLLLLLLLL", "LLLLLLLLL"], "Y": ["LLLLLLLLL", "LLLLLLLLL", "LLLRRRLLL", "LLRLLLRLL", "LLRLLLRLL", "LLRLLLRLL", "LLLRRRLLL", "LLLLLLLLL", "LLLLLLLLL"], "T": ["LLLLLLLLL", "LLLLLLLRL", "LLLLLLRLL", "LLLLLRLLL", "LLLLRLLLL", "LLLRLLLLL", "LLRLLLLLL", "LRLLLLLLL", "LLLLLLLLL"]}, "fab": {"K": ["R...R", "R...R", ".R.R.", ".RRR.", "....."], "P": [".....", ".....", "RRRRR", ".....", "....."], "Y": [".RRR.", "R...R", "R...R", "R...R", ".RRR."], "T": ["....R", "...R.", "..R..", ".R...", "R...."]}, "cat": [["................", ".RR........R..R.", "R..........RRRR.", "R.........RRRRR.", ".R........RRRLRR", "..R.......RRRRRR", "..RRRRRRRRRRRRR.", "..RRRRRRRRRRRR..", "..RRRRRRRRRRR...", "..RRRRRRRRRRR...", ".RR.........RR..", "RR...........RR.", "R.............RR"], ["...........R..R.", "RR.........RRRR.", "R.........RRRRR.", ".R........RRRLRR", "..R.......RRRRRR", "..RRRRRRRRRRRRR.", "..RRRRRRRRRRRR..", "..RRRRRRRRRRR...", "..RRRRRRRRRRR...", "................", "....RR...RR.....", ".....RR.RR......", "......RRR......."], ["................", "R..........R..R.", "R..........RRRR.", ".R........RRRRR.", ".R........RRRLRR", "..R.......RRRRRR", "..RRRRRRRRRRRRR.", "..RRRRRRRRRRRR..", "..RRRRRRRRRRR...", "..RRRRRRRRRRR...", "...RR.....RR....", "..RR.......RR...", "..R.........R..."], ["...........R..R.", "RR.........RRRR.", ".R........RRRRR.", "..R.......RRRLRR", "..R.......RRRRRR", "..RRRRRRRRRRRRR.", "..RRRRRRRRRRRR..", "..RRRRRRRRRRR...", "..RRRRRRRRRRR...", "................", "....R.R.R.R.....", "....R.R.R.R.....", "...RR.RRRR......"]], "star": ["R.R.R", ".RLR.", "RLLLR", ".RLR.", "R.R.R"], "page": ["...RRRRRR...", "..RRRRRRRR..", ".RRRRRRRRRR.", ".RRLLLLLLRR.", ".RRLRLLRLRR.", ".RRMLLLLMRR.", ".RRLLRRLLRR.", "..RRLLLLRR..", "..RBRLLRBR..", ".RBRBBBBRBR.", "RLBRRRRRRBLR", ".RBBBBBBBBR.", "..RRRRRRRR..", "....R..R....", "....R..R....", "...RR..RR..."], "hol": ["....RRRR....", "...RRRRRR...", "..RRRRRRRR..", "..RLLLLLLR..", "..RRRLLRRR..", "..RLRLLRLR..", "..RLLRRLLR..", "...RLLLLR...", "..RMMMMMMR..", ".RMMBBBBMMR.", "RLMMBBBBMMLR", ".RMMBBBBMMR.", ".RRRRRRRRRRR"], "clock": [".......RRRRRRR.......", ".....RRLLLLLLLRR.....", "....RLLLLLRLLLLLR....", "...RLLLLLLRLLLLLLR...", "..RLLLLLLLLLLLLLLLR..", ".RLLLLLLLLRLLLLLLLLR.", ".RLLLLLLLLRLLLLLLLLR.", "RLLLLLLLLLRLLLLLLLLLR", "RLLLLLLLLLRLLLLLLLLLR", "RLLLLLLLLLRLLLLLLLLLR", "RLRRLLLLLLRRRLLLLRRLR", "RLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLLLLLLLR", "RLLLLLLLLLLLLLLLLLLLR", ".RLLLLLLLLLLLLLLLLLR.", ".RLLLLLLLLLLLLLLLLLR.", "..RLLLLLLLLLLLLLLLR..", "...RLLLLLLRLLLLLLR...", "....RLLLLLRLLLLLR....", ".....RRLLLLLLLRR.....", ".......RRRRRRR.......", "..........R..........", "..........R..........", "..........R..........", "..........R..........", "..........R..........", "..........R..........", "........RRRRR........", "........RMMMR........", "........RMMMR........", "........RMMMR........", "........RRRRR........"], "ghost": {"down": ["..RRRR..", ".RLLLLR.", "RLLLLLLR", "RLRLLRLR", "RLLLLLLR", "RLLRRLLR", "RLLLLLLR"], "up": ["..RRRR..", ".RLLLLR.", "RLLLLLLR", "RLLLLLLR", "RLLLLLLR", "RLLLLLLR", "RLLLLLLR"], "side": ["..RRRR..", ".RLLLLR.", "RLLLLLLR", "RLLLRLRR", "RLLLLLLR", "RLLLLRLR", "RLLLLLLR"]}, "stack": ["........", ".RRRRRR.", ".RLLLLR.", "RRRRRRR.", "RBBBBBR.", ".RRRRRRR", ".RMMMMMR", ".RRRRRRR"], "abe": ["..RRRR..", ".RLLLLR.", ".RRLLRR.", ".RRRRRR.", "..RRRR..", ".RBRRBR.", "RLBBBBLR", ".RR..RR."]};
+const C={L:"#fffaeb",M:"#f6ebc8",B:"#b9d4ea",R:"#a9473f"};const W=160,H=144;
+function mk(c){c.imageSmoothingEnabled=false;
+ const r=(x,y,w,h,k)=>{if(w<=0||h<=0)return;c.fillStyle=C[k];c.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h))};
+ const box=(x,y,w,h,f,l)=>{r(x,y,w,h,l);if(w>2&&h>2)r(x+1,y+1,w-2,h-2,f)};
+ const fsc=sz=>sz>=14?3:sz>=10?2:1;const tw=(s,sz)=>{const k=fsc(sz);return s.length*4*k-k};
+ const txt=(s,x,y,k,sz)=>{const sc=fsc(sz);x=Math.round(x);y=Math.round(y);c.fillStyle=C[k];[...String(s).toUpperCase()].forEach((ch,i)=>{const g=FONT[ch];if(g)for(let p=0;p<15;p++)if(g[p]==="1")c.fillRect(x+i*4*sc+(p%3)*sc,y+((p/3)|0)*sc,sc,sc)})};
+ const ctr=(s,y,k,sz,cx=80)=>txt(s,cx-Math.floor(tw(s,sz)/2),y,k,sz);
+ const put=(a,x,y,fl)=>a.forEach((row,j)=>[...row].forEach((ch,i)=>{if(C[ch])r(x+(fl?row.length-1-i:i),y+j,1,1,ch)}));
+ const dith=(x,y,w,h,a,b)=>{for(let j=0;j<h;j++)for(let i=0;i<w;i++)r(x+i,y+j,1,1,(i+j)%2?a:b)};
+ const ell=(cx,cy,rx,ry,k)=>{for(let y=-ry;y<=ry;y++){const w=Math.round(rx*Math.sqrt(1-(y*y)/(ry*ry+.01)));r(cx-w,cy+y,w*2+1,1,k)}};
+ const bk=(k,bx,by,w)=>{const sp=SP.book[k],sw=sp[0].length;sp.forEach((row,j)=>{for(let q=0;q<w;q++){const ch=q<3?row[q]:q>=w-3?row[sw-(w-q)]:row[3+((q-3)%(sw-6))];r(bx+q,by+j,1,1,ch)}})};
+ const shelfRow=(x0,x1,y,h,seed,pal)=>{let x=x0,i=seed;while(x<x1){const w=2+((i*7)%3),hh=h-((i*5)%4);if(x+w>x1)break;r(x,y-hh,w,hh,pal[i%pal.length]);if(w>2)r(x+1,y-hh+2,w-2,1,pal[i%pal.length]==="R"?"M":"R");x+=w;if(i%5===4)x+=1;i++}};
+ const bookcase=(x,y,w,h)=>{r(x,y,w,h,"R");r(x+1,y+1,w-2,2,"M");for(let sy=y+4;sy+10<=y+h;sy+=11){r(x+2,sy,w-4,9,"R");shelfRow(x+2,x+w-2,sy+9,8,sy+x,["B","L","M","B","L"]);r(x,sy+9,w,2,"R")}};
+ return {r,box,tw,txt,ctr,put,dith,ell,bk,shelfRow,bookcase}}
+const CHANNELS=[
+ {n:"Please Stand By",d:"Color bars and a station card. The channel you land on when the arcade closes.",
+  draw(g,t){const {r,box,ctr}=g;["L","M","B","R","B","M","L"].forEach((k,i)=>r(i*23,0,23,96,k));r(0,96,W,48,"R");box(40,30,80,36,"L","R");ctr("PLEASE",36,"R",10);ctr("STAND BY",50,"R",10);ctr("OVERDUE ARCADE",108,"L");if((t>>5)%2)ctr("BACK SOON",122,"M")}},
+ {n:"Cat Nap",d:"A cat curled on a stack of books in a sunny window. Breathing, a twitching tail and ear, drifting dust in the sunbeam, and Zs that float up and fade.",
+  draw(g,t){const {r,box,ell,bk,dith,txt,bookcase}=g;r(0,0,W,H,"M");bookcase(4,10,40,100);bookcase(116,10,40,100);
+   box(54,12,52,64,"B","R");r(79,12,2,64,"R");r(54,43,52,2,"R");r(50,76,60,5,"R");r(51,77,58,2,"M");
+   for(let k=0;k<6;k++){const x=60+((k*13+(t>>2))%46),y=20+((k*29+(t>>3))%50);r(x,y,1,1,"L")}
+   for(let j=0;j<40;j++)for(let q=0;q<30;q++)if((q+j)%4===0&&q>j*.5-10&&q<j*.5+14)r(60+q+j*.4,82+j*.6,1,1,"L");
+   r(0,112,W,32,"L");r(0,112,W,2,"R");for(let x=0;x<W;x+=20)r(x,118,10,1,"B");
+   bk("R",50,104,60);bk("B",54,97,52);bk("M",52,90,56);
+   const br=(t>>5)%2;ell(78,84-br,16,6+br,"R");ell(92,82,6,5,"R");r(88,76,2,3,"R");r(95,76,2,3,"R");if((t>>6)%5===0)r(95,75,2,1,"R");
+   r(90,81,2,1,"M");r(94,81,2,1,"M");r(96,84,1,1,"L");
+   const tw=Math.round(Math.sin(t/14)*2);r(62,86,6,2,"R");r(58,87+tw,5,2,"R");r(56,86+tw*2,3,2,"R");
+   const zp=t%90;const zy=72-zp/3;if(zp<80){txt("Z",100+zp/12,zy,"R");if(zp>20)txt("Z",104+zp/10,zy-10,"R")}}},
+ {n:"Ball of Yarn",d:"A ball of blue yarn rolls across the reading room floor, unwinding and shrinking as it goes, until a paw bats it back and it all winds up again.",
+  draw(g,t){const {r,ell,dith,bookcase}=g;r(0,0,W,H,"L");bookcase(0,6,70,64);bookcase(90,6,70,64);r(0,70,W,74,"M");for(let y=78;y<H;y+=10)r(0,y,W,1,"B");
+   const ph=t%300;const prog=ph<200?ph/200:1-(ph-200)/100;const bx=12+prog*120,size=Math.max(3,Math.round(9-prog*5));const by=110-size;
+   for(let x=10;x<bx;x+=1)r(x,112+Math.round(Math.sin(x/5+(ph<200?0:t/4))*1.5),1,1,"B");r(8,111,3,3,"R");
+   ell(bx,by,size,size,"R");ell(bx,by,size-1,size-1,"B");const a=t/(ph<200?4:-2);for(let k=-size+1;k<size;k+=2){const o=Math.round(Math.sin(a+k)*(size-1)/2);r(bx+o,by+k,1,1,"R");r(bx-o-1,by+k,1,1,"L")}
+   if(ph>185&&ph<215){const px=148-Math.sin((ph-185)/30*Math.PI)*20;r(px,100,20,9,"R");r(px-2,102,4,5,"R");r(px-1,103,2,1,"M")}}},
+ {n:"Rainy Night",d:"Rain on the library window: a moon drifting behind clouds, slanted rain, drops running down the glass, a flickering reading lamp, and the odd flash of lightning.",
+  draw(g,t){const {r,box,ell,txt}=g;const flash=(t%400)<6;r(0,0,W,H,"M");box(16,8,128,100,flash?"L":"B","R");
+   const mx=40+((t/6)%140);ell(mx,30,9,9,"L");ell(mx+3,28,8,8,flash?"L":"B");
+   for(let k=0;k<4;k++){const cx=((k*55+t/3)%190)-20;ell(cx,22+k*6,14,4,"M");ell(cx+10,20+k*6,9,4,"M")}
+   [[18,86,"R"],[34,78,"R"],[48,90,"R"],[60,74,"R"],[96,82,"R"],[110,70,"R"],[126,84,"R"]].forEach(([x,y,k])=>{r(x,y,12,108-y,k);for(let wy=y+4;wy<100;wy+=7)r(x+3,wy,2,3,"M")});
+   for(let k=0;k<40;k++){const x=(k*41+t*2)%180-10,y=(k*67+t*5)%110;r(x,y,1,3,"L");r(x-1,y+3,1,2,"L")}
+   for(let k=0;k<5;k++){const x=24+k*24,y=(t*.5+k*40)%92+10;r(x,y,2,2,"L");r(x,y-6,1,6,"L")}
+   r(79,8,2,100,"R");r(16,56,128,2,"R");r(10,108,140,6,"R");r(12,109,136,2,"M");
+   const fl=(t>>2)%7===0;r(112,90,4,18,"R");r(104,78,20,12,"R");r(106,80,16,8,fl?"M":"L");r(100,90,28,2,"R");r(0,114,W,30,"R");ctr2(txt,"STORMY TONIGHT",126)}},
+ {n:"Date Due",d:"The circulation desk at full speed: a belt of check-out cards slides past, the stamp drops on each one with a thunk, and a counter ticks up.",
+  draw(g,t){const {r,box,txt,put,bookcase}=g;r(0,0,W,H,"M");bookcase(0,6,44,46);bookcase(116,6,44,46);
+   const sp=56,ph=t%sp,belt=Math.floor(t/sp);r(0,96,W,6,"R");for(let x=-(t%8);x<W;x+=8)r(x,98,4,2,"M");r(0,102,W,42,"L");r(0,102,W,2,"R");
+   for(let k=-1;k<4;k++){const x=56+k*52-ph*52/sp;const stamped=k<0||(k===0&&ph>28);const card=SP.cards[stamped?"P":""];put(card.slice(0,40),x,56)}
+   const down=ph>16&&ph<36?Math.round(Math.sin((ph-16)/20*Math.PI)*20):0;r(60,0,40,8,"R");r(76,8,8,22+down,"R");r(78,10,4,18+down,"M");box(62,30+down,36,10,"R","R");r(64,32+down,32,2,"M");box(60,40+down,40,6,"M","R");
+   if(ph>26&&ph<40){txt("THUNK",64,22,"R")}box(4,112,60,22,"M","R");txt("STAMPED",8,115,"R");txt(String(1200+belt).padStart(5,"0"),8,124,"R",10)}},
+ {n:"Knit One",d:"A close-up of knitting in progress: the needles dip and cross, the working yarn tugs from a ball, and a striped rib grows row by row before it's cast off and started again.",
+  draw(g,t){const {r,ell,put}=g;r(0,0,W,H,"M");for(let y=0;y<H;y+=12)for(let x=(y/12)%2*12;x<W;x+=24)r(x,y,12,12,"L");
+   const rows=Math.floor((t%360)/24),st=(t%24);const fx=30,fw=100;
+   for(let j=0;j<rows;j++){r(fx,40+j*6,fw,6,j%4<2?"L":"B");for(let q=0;q<16;q++)put(SP.fab[q%4<2?"K":"P"],fx+2+q*6,40+j*6)}
+   const tip=Math.round(Math.sin(t/3)*4);r(10,32+tip,120,3,"R");r(6,31+tip,6,5,"R");r(128,34+tip,1,1,"R");
+   r(40,40+tip,100,2,"R");r(138,38,8,6,"R");const nx=30+(st/24)*fw;
+   r(150,30,1,1,"R");ell(146,118,10,10,"R");ell(146,118,9,9,"B");for(let k=-8;k<9;k+=3)r(146+Math.round(Math.sin(t/8+k)*6),118+k,1,1,"R");
+   for(let y=44;y<108;y+=2)r(nx+Math.round((146-nx)*((y-44)/64))+Math.round(Math.sin(t/4+y/6)),y,1,2,"R")}},
+ {n:"After Hours",d:"A top-down peek at the closed library: Mr. Abernathy sweeps his flashlight down the aisles while the ghost slips between the stacks, scooping up books behind his back.",
+  draw(g,t){const {r,put,dith}=g;r(0,0,W,H,"B");for(let y=0;y<H;y+=8)r(0,y,W,1,"M");for(let x=0;x<W;x+=8)r(x,0,1,H,"M");
+   const cases=[[16,16],[64,16],[112,16],[16,72],[64,72],[112,72]];cases.forEach(([x,y])=>{r(x,y,32,20,"R");r(x+1,y+1,30,3,"M");r(x+1,y+5,30,6,"R");r(x+1,y+12,30,6,"R");for(let q=x+2;q<x+30;q+=3){r(q,y+6,2,5,"BLM"[(q>>2)%3]);r(q,y+13,2,5,"LMB"[(q>>2)%3])}});
+   const gp=(t*.5)%320;const ax=gp<160?8+gp*.9:8+(320-gp)*.9;const dir=gp<160?1:-1;
+   for(let k=1;k<7;k++)for(let j=-k;j<=k;j++)if((k+j)%2===0)r(ax+4+dir*k*5,50+j*2.4,4,2,"L");put(dir>0?SP.abe:SP.abe.map(s=>[...s].reverse().join("")),ax,46);
+   const hx=((t*.8)%200)-20,hy=dir>0?120:58;put([...SP.ghost.side,(t>>3)%2?"R.RR.RR.":".RR.RR.R"],dir>0?hx:150-hx,hy-((t>>4)%2));
+   [[44,62],[100,124],[136,62]].forEach(([x,y],i)=>{if(((t>>7)+i)%3)put(SP.stack,x,y)})}},
+ {n:"Shhh",d:"Page tiptoes across the reading room toward the New shelf. Every time Mrs. Hollis peeks over her book, Page freezes mid-step until she goes back to reading.",
+  draw(g,t){const {r,box,put,txt,bookcase}=g;r(0,0,W,H,"M");bookcase(4,8,44,70);bookcase(112,8,44,70);
+   put(SP.clock,70,6);const ph=t%420;const look=(ph>140&&ph<200)||(ph>300&&ph<350);const warn=(ph>120&&ph<=140)||(ph>280&&ph<=300);
+   const H2=SP.hol.slice();const holR=look?H2:H2.map((row,j)=>j>=4&&j<10?"RRRRRRRRRRRR".replace(/R/g,(m,i)=>i>0&&i<11?(j===6?"R":"B"):"R"):row);
+   for(let j=0;j<13;j++)for(let i=0;i<12;i++){const ch=(look?SP.hol:holR)[j][i];if(C[ch])r(68+i*2,50+j*2,2,2,ch)}
+   r(54,74,52,30,"R");r(56,76,48,2,"M");r(0,104,W,40,"L");r(0,104,W,2,"R");for(let x=8;x<W;x+=24)r(x,112,1,32,"B");
+   r(136,74,22,30,"R");r(138,76,18,10,"L");r(138,88,18,14,"M");txt("NEW",140,78,"R");
+   let moved=0;for(let k=0;k<ph;k++){const lk=(k>140&&k<200)||(k>300&&k<350);if(!lk)moved+=.28}const px=8+moved%118;
+   put(look?SP.page:(Math.floor(moved/3)%2?SP.page.map((row,j)=>j>12?(j===15?"...R....R...":row):row):SP.page),px,88);
+   if(warn){box(94,40,9,10,"L","R");txt("?",97,42,"R")}if(look){box(94,40,9,10,"R","R");txt("!",97,42,"L")}}},
+ {n:"Coming Soon",d:"A theater marquee with chasing bulbs flips through every arcade game, showing its art, while a countdown to the next game ticks down.",
+  draw(g,t){const {r,box,ctr,txt}=g;r(0,0,W,H,"R");box(8,8,144,128,"L","R");for(let x=10;x<150;x+=6){const on=((x/6|0)+(t>>3))%2;r(x,9,3,3,on?"M":"R");r(x,132,3,3,on?"R":"M")}
+   for(let y=14;y<130;y+=6){const on=((y/6|0)+(t>>3))%2;r(9,y,3,3,on?"M":"R");r(148,y,3,3,on?"R":"M")}
+   ctr("COMING SOON",18,"R",10);const G=[["STACKS ON","STACKS"],["DATE DUE"],["LOOSE ENDS"],["OFF THE","CHART"],["LOST IN","THE STACKS"],["QUIET,","PLEASE"],["SHELF","ORDER"],["AFTER","HOURS"]];
+   const gi=Math.floor(t/120)%G.length,ph=t%120;const slide=ph<12?(12-ph)*6:0;
+   box(20,36+slide,120,56,"M","R");G[gi].forEach((s,j)=>ctr(s,42+slide+j*8,"R"));titleArt(g,gi,56,58+slide);
+   r(20,98,120,1,"R");const secs=86400*3-Math.floor(t/4);const d=Math.floor(secs/86400),h=Math.floor(secs%86400/3600),m=Math.floor(secs%3600/60),s=secs%60;
+   ctr("NEXT GAME IN",104,"R");ctr(`${d}D ${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`,114,"R",10)}},
+ {n:"Reading Nook",d:"Fireside with the Overdue cat asleep on the rug: crackling flames, sparks drifting up the chimney, the wall clock's pendulum swinging, and steam curling from a cup of tea.",
+  draw(g,t){const {r,box,put,ell,bookcase}=g;r(0,0,W,H,"M");for(let y=0;y<104;y+=6)for(let x=((y/6)%2)*6;x<W;x+=12)r(x,y,6,6,"L");bookcase(116,8,40,96);
+   box(10,30,70,74,"M","R");r(6,26,78,6,"R");r(8,28,74,2,"M");for(let y=36;y<104;y+=6)for(let x=12+((y/6)%2)*5;x<78;x+=10)r(x,y,1,6,"B");r(24,52,42,52,"R");
+   for(let k=0;k<5;k++){const h=14+((t>>2)*(k+3)+k*7)%12,cx=30+k*8;for(let j=0;j<h;j++){const w=Math.max(1,Math.round((h-j)/3));r(cx-w+1,103-j,w*2,1,j<h*.45?"M":j<h*.8?"L":"B")}}
+   for(let k=0;k<4;k++){const sy=(t*1.2+k*25)%50;r(36+k*6+Math.round(Math.sin(sy/5)*2),100-sy,1,1,"L")}r(22,100,46,4,"R");
+   const sw=Math.round(Math.sin(t/16)*4);put(SP.clock.slice(0,21),88,10);for(let y=31;y<40;y++)r(98+Math.round(sw*(y-31)/9),y,1,1,"R");r(96+sw,40,5,5,"R");
+   r(0,104,W,40,"L");r(0,104,W,2,"R");ell(60,124,34,8,"B");ell(60,124,30,6,"M");
+   const br=(t>>5)%2;ell(56,120-br,9,4+br,"R");ell(64,118,4,4,"R");r(61,113,1,2,"R");r(66,113,1,2,"R");r(46,121,4,2,"R");
+   r(92,108,22,4,"R");r(94,112,2,14,"R");r(110,112,2,14,"R");box(98,100,10,8,"L","R");r(108,102,2,3,"R");for(let k=0;k<3;k++)r(100+k*3+Math.round(Math.sin(t/10+k)),94-((t>>3)+k*2)%7,1,3,"B")}}];
+
+const GAMES={"stacks-on-stacks":["Stacks on Stacks","Stack returned books on the cart as high as they'll go without toppling the pile.","Space or tap to drop"],
+"date-due":["Date Due","Stamp each card right in the box as it slides past the desk. Perfect stamps score big.","Space or tap to stamp"],
+"loose-ends":["Loose Ends","Steer an unraveling sweater through the reading room and gather every ball of yarn without tangling.","Arrow keys or swipe"],
+"off-the-chart":["Off the Chart","Follow the knitting chart stitch by stitch before the row timer runs out.","Arrow keys or the on-screen buttons"],
+"lost-in-the-stacks":["Lost in the Stacks","Run and jump the library cat across the shelves, collecting stars along the way.","Arrow keys and space, or tap"],
+"quiet-please":["Quiet, Please","Sneak past the librarians to reshelve your book. Freeze when they look up!","Arrow keys, or hold to walk"],
+"shelf-order":["Shelf Order","Slot each returned book into its correct Dewey spot. It gets tricky fast.","Arrow keys and space, or tap"],
+"after-hours":["After Hours","Haunt the closed library, collect every stack and slip out the door before the guard spots you.","Arrow keys or swipe"]};
+const SB="https://egxmnrowhjdwaxiolhmh.supabase.co",KEY="sb_publishable_tv2odKoWms64uUJ5zYC8pw_qOsQ4meT";
+const $=id=>document.getElementById(id);
+async function rpc(fn,a){const r=await fetch(SB+"/rest/v1/rpc/"+fn,{method:"POST",headers:{apikey:KEY,"Content-Type":"application/json"},body:JSON.stringify(a||{})});if(!r.ok)throw new Error(fn);return r.json()}
+const fmt=d=>new Date(d).toLocaleString("en-US",{month:"short",day:"numeric",hour:"numeric",minute:"2-digit",timeZone:"America/New_York"}).replace(" AM"," am").replace(" PM"," pm");
+const fday=d=>new Date(d).toLocaleDateString("en-US",{month:"short",day:"numeric",timeZone:"America/New_York"});
+const fmon=d=>new Date(d).toLocaleDateString("en-US",{month:"long",timeZone:"America/New_York"});
+// ---- TV channels ----
+const cv=$("screen"),g=mk(cv.getContext("2d"));let ch=0,t=0,osd=90,mode="closed";
+function frame(){t++;if(mode==="closed"){CHANNELS[ch].draw(g,t);if(osd>0){osd--;g.box(118,6,36,11,"R","R");g.txt("CH "+String(ch+1).padStart(2,"0"),121,9,"L")}}requestAnimationFrame(frame)}
+function setCh(n){ch=(n+CHANNELS.length)%CHANNELS.length;osd=90;$("chName").textContent="CH "+(ch+1)+" · "+CHANNELS[ch].n;$("knobCh").style.transform="rotate("+(ch*36)+"deg)"}
+$("knobCh").onclick=$("chNext").onclick=()=>{if(mode==="closed")setCh(ch+1)};$("chPrev").onclick=()=>setCh(ch-1);
+// ---- rules ----
+const modal=$("modal");function showRules(){modal.hidden=false;$("rulesOk").focus()}
+function hideRules(){modal.hidden=true;try{sessionStorage.setItem("arcadeRules:"+curPeriod,"1")}catch(e){}const f=$("crt").querySelector("iframe");if(f)f.focus()}
+$("rulesBtn").onclick=showRules;$("rulesOk").onclick=hideRules;modal.onclick=e=>{if(e.target===modal)hideRules()};addEventListener("keydown",e=>{if(e.key==="Escape"&&!modal.hidden)hideRules()});
+// ---- state ----
+let curPeriod=null,curGame=null;
+function openGame(st){mode="open";const crt=$("crt");if(curGame!==st.game){curGame=st.game;crt.classList.remove("ch");crt.innerHTML="";const f=document.createElement("iframe");
+  f.src="games/"+st.game+".html?embed=1";f.title=GAMES[st.game][0];f.allow="autoplay";crt.appendChild(f)}
+ $("chrow").hidden=true;$("knobCh").disabled=true;$("infoOpen").hidden=false;$("infoClosed").hidden=true;
+ const G=GAMES[st.game]||[st.game,"",""];$("gName").textContent=G[0];$("gBlurb").textContent=G[1];$("gCtl").textContent=G[2];
+ const dates=fmt(st.starts_at)+" – "+fmt(st.ends_at)+" ET";$("gDates").textContent=dates;$("rDates").textContent=dates;$("gPrize").textContent=st.prize||"";$("rPrize").textContent=st.prize||"";
+ $("intro").textContent="One game, a few days a month. Top score when the board closes wins yarn.";$("stamp").textContent="NOW PLAYING · "+fday(st.starts_at).toUpperCase()+"–"+fday(st.ends_at).toUpperCase();
+ let seen=false;try{seen=!!sessionStorage.getItem("arcadeRules:"+curPeriod)}catch(e){}if(!seen)showRules()}
+function closeGame(st){mode="closed";if(curGame!==null||!$("crt").querySelector("canvas")){curGame=null;const crt=$("crt");crt.innerHTML="";crt.classList.add("ch");crt.appendChild(cv)}
+ $("chrow").hidden=false;$("knobCh").disabled=false;$("infoOpen").hidden=true;$("infoClosed").hidden=false;modal.hidden=true;
+ $("intro").textContent="The arcade is closed for now. Flip through the channels, and come back when the next game opens.";
+ const dl=$("closedDl");dl.innerHTML="";const add=(k,v)=>{const dt=document.createElement("dt"),dd=document.createElement("dd");dt.textContent=k;dd.textContent=v;dl.append(dt,dd)};
+ if(st&&st.status==="next"){add("Next game","Opens "+fday(st.starts_at));$("stamp").textContent="CLOSED · NEXT GAME "+fday(st.starts_at).toUpperCase()}else $("stamp").textContent="CLOSED · BACK SOON";
+ return add}
+async function refresh(){let st;try{st=await rpc("arcade_state")}catch(e){if(mode!=="open")closeGame(null);return}
+ const all=Array.isArray(st)?st:[st];st=all.find(x=>x.status==="open")||all.find(x=>x.status==="next")||all[0]||null;if(st&&st.status==="open")curPeriod=st.game+st.starts_at;let rows=[];try{rows=await rpc("get_board",{p_game:null,p_limit:10})}catch(e){}
+  const open=st&&st.status==="open";let add=null;if(open)openGame(st);else add=closeGame(st);
+ const sec=$("boardSec");if(!rows.length){sec.hidden=!open;$("rows").innerHTML='<tr><td colspan="3">No scores yet. Be the first!</td></tr>'}else sec.hidden=false;
+ const r0=rows[0]||{},G=GAMES[r0.game||(st&&st.game)]||["",""];
+ if(open){$("boardLabel").textContent="Live leaderboard · "+G[0];$("boardTitle").textContent="Who's ahead";$("boardClose").textContent="Board closes "+fmt(st.ends_at)}
+ else if(rows.length){$("boardLabel").textContent="Final board · "+fmon(r0.ends_at)+" · "+G[0];$("boardTitle").textContent=fmon(r0.ends_at)+"'s winners";$("boardClose").textContent="Closed "+fday(r0.ends_at);if(add)add("Last winner",r0.name+", "+Number(r0.score).toLocaleString()+" in "+G[0])}
+ if(rows.length){const tb=$("rows");tb.innerHTML="";rows.forEach((x,i)=>{const tr=document.createElement("tr");if(i===0&&!open)tr.className="win";
+  [x.rank,x.name+(i===0&&!open?"  ★ winner":""),Number(x.score).toLocaleString()].forEach(v=>{const td=document.createElement("td");td.textContent=v;tr.appendChild(td)});tb.appendChild(tr)})}}
+// ---- messages from the game: refresh board, pass newsletter signups up to the shop page ----
+addEventListener("message",e=>{const d=e.data||{};if(e.source===window.parent)return;
+ if(d.type==="overdue-arcade-score")refresh();
+ if(d.type==="overdue-arcade-newsletter"&&window.parent!==window)window.parent.postMessage(d,"*")});
+// ---- tell the shop page how tall to make the frame ----
+function sendH(){if(window.parent!==window)window.parent.postMessage({type:"overdue-arcade-height",h:document.documentElement.scrollHeight},"*")}
+new ResizeObserver(sendH).observe(document.body);
+setCh(0);frame();refresh();setInterval(refresh,30000);
+</script></body></html>

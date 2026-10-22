@@ -5,6 +5,16 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <style>[hidden]{display:none!important}html{color-scheme:light}body{margin:0;font:14px system-ui,sans-serif}.chk{display:flex;gap:6px;align-items:center;font-size:13px}.chk input{width:auto}
 </style>
+<style id="embedCss">
+html.embed body{background:#1a1a1a;padding:0;margin:0;overflow:hidden}
+html.embed .wrap{display:block;max-width:none;position:relative}
+html.embed .gb{padding:0;border-radius:0;background:none}
+html.embed canvas{width:100%!important;border:0}
+html.embed .brand,html.embed .help,html.embed #board,html.embed .side h2,html.embed #meLine{display:none}
+html.embed .side{display:none}
+html.embed .side.asking{display:flex;position:absolute;inset:6% 8%;width:auto;overflow:auto;justify-content:center;box-shadow:4px 4px 0 #a9473f}
+</style>
+<script>if(/[?&]embed=1/.test(location.search))document.documentElement.classList.add("embed")</script>
 </head>
 <body>
 <title>Off the Chart</title>
@@ -224,7 +234,7 @@ function save(){try{localStorage.setItem("oa-me",JSON.stringify(me))}catch(e){}r
 function upsert(sc){if(sc>localBest())setLocalBest(sc);save();
   rpc("submit_score",{p_game:GAME_ID,p_name:me.n,p_email:me.e,p_score:sc,p_newsletter:me.news!==false}).then(()=>{
     if(me.news!==false){try{window.parent.postMessage({type:"overdue-arcade-newsletter",email:me.e,name:me.n},"*")}catch(e){}}
-    setNote("Score saved to the live board.");refreshBoard()}).catch(err=>setNote(err.message))}
+    setNote("Score saved to the live board.");try{window.parent.postMessage({type:"overdue-arcade-score",game:GAME_ID},"*")}catch(e){}refreshBoard()}).catch(err=>setNote(err.message))}
 async function refreshBoard(){try{const st=await rpc("arcade_state");const open=(st||[]).find(r=>r.status==="open"&&r.game===GAME_ID);boardOpen=!!open;
     const rows=await rpc("get_board",{p_game:GAME_ID,p_limit:10});scores=(rows||[]).filter(r=>boardOpen?r.is_open:true).map(r=>({n:r.name,s:r.score}));
     if(open){const d=new Date(open.ends_at);setNote("Live board · closes "+d.toLocaleString([], {month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}))}
@@ -232,6 +242,9 @@ async function refreshBoard(){try{const st=await rpc("arcade_state");const open=
     try{BOARD_CLOSES=open?new Date(open.ends_at).toLocaleDateString("en-US",{month:"short",day:"numeric"}).toUpperCase():"SOON"}catch(e){}
   }catch(e){setNote(e.message)}renderBoard();renderMe()}
 refreshBoard();setInterval(refreshBoard,30000);
+
+(function(){var f=document.getElementById("nameForm"),s=document.querySelector(".side");if(!f||!s)return;
+ new MutationObserver(function(){s.classList.toggle("asking",!f.hidden);if(!f.hidden){var i=document.getElementById("nameInput");if(i)i.focus()}else{var c=document.getElementById("cv")||document.querySelector("canvas");if(c)c.focus()}}).observe(f,{attributes:true,attributeFilter:["hidden"]});})();
 </script>
 
 </body>
