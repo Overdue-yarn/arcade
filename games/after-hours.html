@@ -131,7 +131,9 @@ function cells(){const a=[];for(let y=1;y<ROWS-1;y++)for(let x=1;x<COLS-1;x++)if
 const LANES=[{h:1,a:1,b:18},{h:4,a:1,b:18},{h:7,a:1,b:18},{h:10,a:1,b:18},{h:13,a:1,b:18},{v:9,a:1,b:14},{v:10,a:1,b:14},{v:18,a:1,b:13},{v:13,a:4,b:13}];
 let floorT=0;const par=()=>(22+floorN*6)*60;
 function newFloor(){floorT=0;pl={cx:1,cy:14,x:1*CS,y:GY+14*CS,tx:1,ty:14,face:1};doorOpen=false;swipeDir=null;
-  const n=Math.min(5,floorN+1);const lanes=LANES.slice().sort(()=>Math.random()-.5).filter(l=>!(l.h===13||l.h===14)).slice(0,n);
+  const n=Math.min(5,floorN+1);const fit=l=>{const segs=[];let a=null;for(let k=l.a;k<=l.b+1;k++){const open=k<=l.b&&!(l.h!==undefined?wall(k,l.h):wall(l.v,k));if(open&&a===null)a=k;if(!open&&a!==null){segs.push({a,b:k-1});a=null}}
+    segs.sort((p,q)=>(q.b-q.a)-(p.b-p.a));return segs.length&&segs[0].b-segs[0].a>=3?Object.assign({},l,segs[0]):null};
+  const lanes=LANES.slice().sort(()=>Math.random()-.5).filter(l=>!(l.h===13||l.h===14)).map(fit).filter(Boolean).slice(0,n);
   guards=lanes.map((l,i)=>{const s=Math.random()<.5;const p=l.h!==undefined?{x:(s?l.a:l.b),y:l.h}:{x:l.v,y:(s?l.a:l.b)};
     return {lane:l,x:p.x*CS,y:GY+p.y*CS,dir:s?1:-1,spd:.45+Math.min(.35,floorN*.05),pause:0,look:0}});
   const free=cells().filter(c=>Math.abs(c.x-1)+Math.abs(c.y-14)>6&&!(c.x===18&&(c.y===13||c.y===14)));
