@@ -6,6 +6,8 @@
 <style>[hidden]{display:none!important}html{color-scheme:light}body{margin:0;font:14px system-ui,sans-serif}.chk{display:flex;gap:6px;align-items:center;font-size:13px}.chk input{width:auto}
 </style>
 <style id="embedCss">
+canvas{touch-action:none!important;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+html.embed,html.embed body{overscroll-behavior:none}
 html.embed body{background:#1a1a1a;padding:0;margin:0;overflow:hidden}
 html.embed .wrap{display:block;max-width:none;position:relative}
 html.embed .gb{padding:0;border-radius:0;background:none}
@@ -245,6 +247,8 @@ refreshBoard();setInterval(refreshBoard,30000);
 
 (function(){var f=document.getElementById("nameForm"),s=document.querySelector(".side");if(!f||!s)return;
  new MutationObserver(function(){s.classList.toggle("asking",!f.hidden);if(!f.hidden){var i=document.getElementById("nameInput");if(i)i.focus()}else{var c=document.getElementById("cv")||document.querySelector("canvas");if(c)c.focus()}}).observe(f,{attributes:true,attributeFilter:["hidden"]});})();
+
+(function(){var c=document.querySelector("canvas");if(c)["touchstart","touchmove"].forEach(function(t){c.addEventListener(t,function(e){e.preventDefault()},{passive:false})})})();
 </script>
 
 </body>
