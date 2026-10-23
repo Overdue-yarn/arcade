@@ -220,13 +220,18 @@ async function rpc(fn,a){const r=await fetch(SB+"/rest/v1/rpc/"+fn,{method:"POST
 const fmt=d=>new Date(d).toLocaleString("en-US",{month:"short",day:"numeric",hour:"numeric",minute:"2-digit",timeZone:"America/New_York"}).replace(" AM"," am").replace(" PM"," pm");
 const fday=d=>new Date(d).toLocaleDateString("en-US",{month:"short",day:"numeric",timeZone:"America/New_York"});
 const fmon=d=>new Date(d).toLocaleDateString("en-US",{month:"long",timeZone:"America/New_York"});
+// ---- hand-animated channels (from Aseprite): sprite sheet, 20 frames per row, per-frame ms ----
+const ART={1:{src:"channels/02-cat-nap.png",cols:20,d:[30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 60, 60, 30, 30, 30, 30, 30, 30, 60, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 60, 30, 30, 30, 30, 60, 30, 30, 30, 30, 60, 30, 30, 30, 30, 60, 30, 30, 30, 30, 60, 60, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 60, 60, 30, 30, 30, 30, 30, 30, 60, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 60, 30, 30, 30, 30, 60, 30, 30, 30, 30, 60, 30, 30, 30, 30, 60, 30, 30, 30, 30, 60, 60, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 60, 60, 30, 30, 30, 30, 30, 30, 60, 30, 30, 30, 30, 30, 30, 30, 30, 30]}};
+Object.values(ART).forEach(a=>{a.img=new Image();a.img.onload=()=>a.ok=true;a.img.src=a.src;a.total=a.d.reduce((x,y)=>x+y,0)});
+let chStart=performance.now();
+function drawArt(a,ctx){let m=(performance.now()-chStart)%a.total,i=0;while(m>=a.d[i]){m-=a.d[i];i++}ctx.drawImage(a.img,(i%a.cols)*160,Math.floor(i/a.cols)*144,160,144,0,0,160,144)}
 // ---- TV channels ----
 const cv=$("screen"),g=mk(cv.getContext("2d"));let ch=0,t=0,osd=90,mode="closed";
-function frame(){t++;if(mode==="closed"){CHANNELS[ch].draw(g,t);if(osd>0){osd--;g.box(118,6,36,11,"R","R");g.txt("CH "+String(ch+1).padStart(2,"0"),121,9,"L")}}requestAnimationFrame(frame)}
-function setCh(n){ch=(n+CHANNELS.length)%CHANNELS.length;osd=90;$("chName").textContent="CH "+(ch+1)+" · "+CHANNELS[ch].n;$("knobCh").style.transform="rotate("+(ch*36)+"deg)";$("knobVol").style.transform="rotate("+(-ch*36)+"deg)"}
+function frame(){t++;if(mode==="closed"){const a=ART[ch];if(a&&a.ok)drawArt(a,cv.getContext("2d"));else CHANNELS[ch].draw(g,t);if(osd>0){osd--;g.box(118,6,36,11,"R","R");g.txt("CH "+String(ch+1).padStart(2,"0"),121,9,"L")}}requestAnimationFrame(frame)}
+function setCh(n){ch=(n+CHANNELS.length)%CHANNELS.length;osd=90;chStart=performance.now();$("chName").textContent="CH "+(ch+1)+" · "+CHANNELS[ch].n;$("knobCh").style.transform="rotate("+(ch*36)+"deg)";$("knobVol").style.transform="rotate("+(-ch*36)+"deg)"}
 const TEST=/[?&]test=1/.test(location.search),GKEYS=Object.keys(GAMES);let gi=0;
 function testGame(n){gi=(n+GKEYS.length)%GKEYS.length;const k=GKEYS[gi],crt=$("crt");mode="test";crt.classList.remove("ch");crt.innerHTML="";const f=document.createElement("iframe");
- f.src="games/"+k+".html?embed=1&v=6";f.title=GAMES[k][0];crt.appendChild(f);$("chName").textContent="GAME "+(gi+1)+" · "+GAMES[k][0].toUpperCase();$("knobCh").style.transform="rotate("+(gi*45)+"deg)";$("knobVol").style.transform="rotate("+(-gi*45)+"deg)";
+ f.src="games/"+k+".html?embed=1&v=7";f.title=GAMES[k][0];crt.appendChild(f);$("chName").textContent="GAME "+(gi+1)+" · "+GAMES[k][0].toUpperCase();$("knobCh").style.transform="rotate("+(gi*45)+"deg)";$("knobVol").style.transform="rotate("+(-gi*45)+"deg)";
  $("infoOpen").hidden=false;$("infoClosed").hidden=true;$("gName").textContent=GAMES[k][0];$("gBlurb").textContent=GAMES[k][1];$("gCtl").textContent=GAMES[k][2];$("gDates").textContent="Test mode";$("gPrize").textContent="Practice only, scores aren't saved";
  $("stamp").textContent="TEST MODE · ALL GAMES";$("intro").textContent="Testing every game. Turn the top knob for the next game, the bottom knob to go back."}
 $("knobCh").onclick=()=>{if(TEST)testGame(gi+1);else if(mode==="closed")setCh(ch+1)};$("knobVol").onclick=()=>{if(TEST)testGame(gi-1);else setCh(ch-1)};
